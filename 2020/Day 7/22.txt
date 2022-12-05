@@ -1,0 +1,11 @@
+light orange, 1, dark maroon, 3, dim maroon, 5, striped green, 2, pale aqua
+wavy bronze, 3, pale black, 5, bright turquoise, 4, pale orange
+dark coral, 3, bright lavender, 1, pale bronze, 2, dull blue
+dim chartreuse, 2, wavy plum, 4, wavy teal, 1, dark crimson
+striped indigo, 4, posh aqua
+shiny lavender, 4, bright yellow, 4, muted salmon, 1, dull chartreuse, 2, dark chartreuse
+clear gold, 3, dotted orange
+dull maroon, 3, posh green, 1, shiny gold, 5, light salmon, 1, posh teal
+light plum, 1, striped plum, 4, striped cyan, 1, light turquoise
+posh magenta, 4, drab black, 3, shiny violet
+posh beige, 4, dotted maroon, 4, dull fuchsia, 5, clear teal, 2, dull beige
