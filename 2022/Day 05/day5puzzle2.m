@@ -6,11 +6,8 @@ numberIdx = find(data.contains("  ") & ~data.contains("[")); % find line
 
 positions = char(data(1:numberIdx - 1)); % get the positions of the creates 
 % before numbers
-instructions = data(numberIdx + 2:end).erase(["move ","from ","to "])...
-    .split(" ").double(); % get the instructions (after numbers) and format 
-% into n-x-3 array
 
-positions = string(rot90(positions(:,2:4:end),3)).erase(" "); %turns the 
+positions = string(rot90(positions(:,2:4:end),3)).erase(" ") %turns the 
 % positsions into strings rotated clock wise so stack 1 is first index etc.
 
 for idx = 1:size(instructions,1) % loop through instuctions
