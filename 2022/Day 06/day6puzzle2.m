@@ -1,12 +1,14 @@
 %% day6puzzle2 - Daniel Breslan - Advent Of Code 2022
+data = double(char(readlines("input.txt")));
+
 n = 14;
-data = repmat(double(char(readlines("input.txt"))),n,1);
 
-for idx = 2:n
-data(idx,:) = circshift(data(1,:),idx-1);
-end
+a = repmat(1:size(data,2),n,1);
+a = a - (0:size(a,1)-1)';
+a(a<1) = 1;
+setOfData = data(a);
 
-foo = sum(mode(data) == data);
+foo = sum(mode(setOfData) == setOfData);
 foo(1:n-1) = 0;
 
 day6puzzle2result = find(foo == 1,1)
