@@ -17,8 +17,7 @@ for idx = 1:numel(data)
             dirContent = dirContent';
         end
         dirContent(dirContent(:,1) == "dir") = "0";
-        dirContent(dirContent(:,1) ~= "0",2) = currentDir + "_" + dirContent(dirContent(:,1) ~= "0",2); % File append folder name
-        dirContent(dirContent(:,1) == "0",2) = currentDir + dirContent(dirContent(:,1) == "0",2);
+        dirContent(:,2) = currentDir + dirContent(:,2);
         G = addnode(G, dirContent(:,2));
         G = addedge(G,currentDir,dirContent(:,2),dirContent(:,1).double());
     elseif instruction(1) == "$ cd .."
@@ -29,22 +28,20 @@ for idx = 1:numel(data)
     end
 end
 
-allFolders = string(unique(G.Edges.EndNodes(:,1)));
 folderSize = zeros(numel(allFolders),1);
 for idx = 1:numel(allFolders)
     folderSize(idx) = getSizeOfFolder(G,allFolders(idx));
 end
 
-results = table(allFolders,folderSize);
-day7puzzle1result = sum(results.folderSize(results.folderSize <= 100000)) %#ok<NOPTS> 
+day7puzzle1result = sum(folderSize(folderSize <= 100000)) %#ok<NOPTS> 
 
-%%
+%% extra plotting
 f = figure(Visible="off");
-p = plot(G,'Layout','force','EdgeLabel',G.Edges.Weight);
+p = plot(G,'Layout','force','EdgeLabel',G.Edges.Weight,NodeLabel=G.Nodes.Variables);
 p.Parent.Parent.Position(1:2) = 0;
 p.Parent.Parent.Position(3:4) = p.Parent.Parent.Position(3:4)*3;
-p.NodeFontSize = 9;
-p.EdgeFontSize = 9;
+p.NodeFontSize = 6;
+p.EdgeFontSize = 6;
 p.Interpreter = 'none';
 saveas(f, 'part1.png')
 

@@ -17,8 +17,7 @@ for idx = 1:numel(data)
             dirContent = dirContent';
         end
         dirContent(dirContent(:,1) == "dir") = "0";
-        dirContent(dirContent(:,1) ~= "0",2) = currentDir + "_" + dirContent(dirContent(:,1) ~= "0",2); % File append folder name
-        dirContent(dirContent(:,1) == "0",2) = currentDir + dirContent(dirContent(:,1) == "0",2);
+        dirContent(:,2) = currentDir + dirContent(:,2);
         G = addnode(G, dirContent(:,2));
         G = addedge(G,currentDir,dirContent(:,2),dirContent(:,1).double());
     elseif instruction(1) == "$ cd .."
@@ -29,20 +28,12 @@ for idx = 1:numel(data)
     end
 end
 
-allFolders = string(unique(G.Edges.EndNodes(:,1)));
 folderSize = zeros(numel(allFolders),1);
 for idx = 1:numel(allFolders)
     folderSize(idx) = getSizeOfFolder(G,allFolders(idx));
 end
+folderSize = sort(folderSize);
+options = folderSize(folderSize >= 30000000 - 70000000 + folderSize(end),:);
 
-results = table(allFolders,folderSize);
-results = sortrows(results,"folderSize");
-totalSize = 70000000;
-needed = 30000000;
-used = results.folderSize(end);
-free = totalSize - used;
-toFree = needed - free;
-options = results(results.folderSize >= toFree,:);
-
-day7puzzle2result = options.folderSize(1) %#ok<NOPTS> 
+day7puzzle2result = options(1) %#ok<NOPTS> 
 
