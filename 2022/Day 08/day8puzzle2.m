@@ -1,4 +1,5 @@
 %% day8puzzle2 - Daniel Breslan - Advent Of Code 2022
+profile on
 data = readlines("input.txt").split("").double;
 
 data = data(:,2:end-1);
@@ -6,7 +7,7 @@ data = data(:,2:end-1);
 scenicScore = zeros(size(data));
 
 for r = 2:size(data,1)-1
-    for c = 3:size(data,2)-1
+    for c = 2:size(data,2)-1
         up = processView(data(r-1:-1:1,c)' >= data(r,c));
         down = processView(data(r+1:end,c)' >= data(r,c));
         left = processView(data(r,c-1:-1:1) >= data(r,c));
@@ -17,6 +18,7 @@ for r = 2:size(data,1)-1
 end
 
 day8puzzle2result = max(scenicScore(:)) %#ok<NOPTS> 
+profile viewer
 
 function out = processView(in)
     if sum(in) == 0
