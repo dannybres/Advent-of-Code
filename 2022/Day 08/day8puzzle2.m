@@ -1,5 +1,4 @@
 %% day8puzzle2 - Daniel Breslan - Advent Of Code 2022
-profile on
 data = readlines("input.txt").split("").double;
 
 data = data(:,2:end-1);
@@ -18,7 +17,11 @@ for r = 2:size(data,1)-1
 end
 
 day8puzzle2result = max(scenicScore(:)) %#ok<NOPTS> 
-profile viewer
+
+%% graphic
+f = figure();
+imshow(repelem(scenicScore,5,5) ./ max(scenicScore,[],"all"))
+saveas(f, 'scenicScore.png')
 
 function out = processView(in)
     if sum(in) == 0
@@ -27,3 +30,4 @@ function out = processView(in)
     end
     out = find(in,1);
 end
+
