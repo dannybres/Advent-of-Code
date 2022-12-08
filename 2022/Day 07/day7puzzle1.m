@@ -28,6 +28,7 @@ for idx = 1:numel(data)
     end
 end
 
+allFolders = string(unique(G.Edges.EndNodes(:,1)));
 folderSize = zeros(numel(allFolders),1);
 for idx = 1:numel(allFolders)
     folderSize(idx) = getSizeOfFolder(G,allFolders(idx));
