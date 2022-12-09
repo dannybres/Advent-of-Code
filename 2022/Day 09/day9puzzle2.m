@@ -15,15 +15,11 @@ locations(:,:,1) = hlocations;
 
 for idx = 2:size(locations,1)
     for tidx = 2:size(locations,3)
-        newH = locations(idx,:,tidx-1);
-        currentT = locations(idx - 1,:,tidx);
-        posDelta = diff([currentT; newH]);
+        posDelta = diff([locations(idx - 1,:,tidx);...
+            locations(idx,:,tidx-1)]);
         if all(abs(posDelta) < 2) % no move needed
             locations(idx,:,tidx) = locations(idx - 1,:,tidx);
-        elseif any(posDelta == 0) % need to move U,D,L,R
-            locations(idx,:,tidx) = locations(idx - 1,:,tidx)...
-                + posDelta / 2;
-        else % need to move diag
+        else % need to move
             locations(idx,:,tidx) = locations(idx - 1,:,tidx)...
                 + sign(posDelta);
         end
@@ -35,7 +31,7 @@ day9puzzle2result = size(unique(locations(:,:,end),'rows'),1) %#ok<NOPTS>
 
 %% Visualisation
 n = 30;
-vw = VideoWriter("out" + n + ".mp4","MPEG-4");
+vw = VideoWriter("out" + n + "reszie.mp4","MPEG-4");
 vw.FrameRate = 900;
 open(vw)
 close all
@@ -48,7 +44,7 @@ a.XLimMode = "manual";
 a.YLimMode = "manual";
 hold all
 for idx = 1:n:size(locations,1)
-    if mod(idx-1,n*20*30) == 0
+    if mod(idx-1,n*20) == 0
         disp(idx)
     end
     coords = squeeze(locations(idx,:,:))';

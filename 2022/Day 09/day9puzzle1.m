@@ -14,14 +14,11 @@ hlocations = [0 0;cumsum(dirs(repelem(data(:,1),data(:,2),1),:))];
 tlocations = zeros(size(hlocations)); % make array for tail
 
 for idx = 2:size(tlocations,1)
-	newH = hlocations(idx,:); %get new head
-    currentT = tlocations(idx - 1,:); % get old tail
-    posDelta = diff([currentT; newH]); % get diff of new head and old tail
+    posDelta = diff([tlocations(idx - 1,:); hlocations(idx,:)]); 
+    % get diff of new head and old tail
     if all(abs(posDelta) < 2) % no move needed
         tlocations(idx,:) = tlocations(idx - 1,:);
-    elseif any(posDelta == 0) % need to move U,D,L,R
-        tlocations(idx,:) = tlocations(idx - 1,:) + posDelta / 2;
-    else % need to move diag
+    else % need to move
         tlocations(idx,:) = tlocations(idx - 1,:) + sign(posDelta);
     end
 end
