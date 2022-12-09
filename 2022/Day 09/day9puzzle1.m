@@ -21,8 +21,7 @@ for idx = 2:size(tlocations,1)
     elseif any(posDelta == 0) % need to move U,D,L,R
         tlocations(idx,:) = tlocations(idx - 1,:) + posDelta / 2;
     else % need to move diag
-        posDelta(abs(posDelta) > 1) = posDelta(abs(posDelta) > 1) /2;
-        tlocations(idx,:) = tlocations(idx - 1,:) + posDelta;
+        tlocations(idx,:) = tlocations(idx - 1,:) + sign(posDelta);
     end
 end
 
