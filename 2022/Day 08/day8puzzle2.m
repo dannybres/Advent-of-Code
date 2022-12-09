@@ -23,6 +23,11 @@ f = figure();
 imshow(repelem(scenicScore,5,5) ./ max(scenicScore,[],"all"))
 saveas(f, 'scenicScore.png')
 
+%% 3D bar
+f = figure();
+bar3(scenicScore)
+saveas(f, '3D - scenicScore.png')
+
 function out = processView(in)
     if sum(in) == 0
         out = numel(in);
