@@ -6,4 +6,4 @@ data(:,1) = cumsum(data(:,1));
 idx = [20 60 100 140 180 220]';
 
 day10puzzle1result = sum((sum((repmat(data(:,1)',numel(idx),1) < idx) .*...
-    repmat(data(:,2)',numel(idx),1),2) + 1) .* idx)
+    repmat(data(:,2)',numel(idx),1),2) + 1) .* idx) %#ok<NOPTS> 
