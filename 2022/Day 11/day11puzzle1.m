@@ -14,14 +14,12 @@ for idx = 1:numel(tok)
     monkeys(idx) = monkey(tok{idx});
 end
 
-% for idx = 1:numel(monkeys)
-% 	monkeys(idx)
-% end
 n = 20;
 for ridx = 1:n
     for midx = 1:numel(monkeys)
         for iidx = 1:numel(monkeys(midx).items)
-        	[location, worryLevel] = monkeys(midx).locationToSendItem();
+        	[location, worryLevel] = monkeys(midx).locationToSendItem(...
+                modder,3);
             monkeys(location).addItem(worryLevel);
         end
     end

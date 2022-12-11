@@ -14,12 +14,12 @@ for idx = 1:numel(tok)
 end
 modder = prod(vertcat(monkeys.testCons));
 maxWorry = 0;
-n = 20;
+n = 1e4;
 for ridx = 1:n
     for midx = 1:numel(monkeys)
         for iidx = 1:numel(monkeys(midx).items)
         	[location, worryLevel] = monkeys(midx).locationToSendItem(...
-                modder,3);
+                modder,1);
             monkeys(location).addItem(worryLevel);
         end
     end
