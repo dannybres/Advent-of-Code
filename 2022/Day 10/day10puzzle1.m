@@ -1,5 +1,5 @@
 %% day10puzzle1 - Daniel Breslan - Advent Of Code 2022
-data = readlines("input.txt").replace(["noop" "addx "],["1 0" "2 "])...
+data = readlines("inputDemo.txt").replace(["noop" "addx "],["1 0" "2 "])...
     .split(" ").double();
 data(:,1) = cumsum(data(:,1));
 

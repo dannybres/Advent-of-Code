@@ -1,4 +1,5 @@
 %% day10puzzle2 - Daniel Breslan - Advent Of Code 2022
+tic
 data = readlines("input.txt").replace(["noop" "addx "],["1 0" "2 "])...
     .split(" ").double(); % load as 2 cols (# cycles and register change)
 data = cumsum(data); 
@@ -20,5 +21,4 @@ data(:,4) = data(:,1) >= data(:,3) - 1 & data(:,1) <= data(:,3) + 1; % see
 res = repmat(' ',40,6); % make the output as blank
 res(data(1:40*6,4) == 1) = '#'; % fill in the #, where needed
 day10puzzle2result = reshape(res,40,6)' %#ok<NOPTS> % resize
-
-
+toc
