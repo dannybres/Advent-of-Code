@@ -32,7 +32,8 @@ classdef monkey < handle
             obj.inspected = 0;
         end
 
-        function [location, worryLevel] = locationToSendItem(obj,modder)
+        function [location, worryLevel] = locationToSendItem(obj,modder...
+                ,worrinessReductionFactor)
             idx = 1;
 %           obj.items(idx) is worry level
             if obj.operationCon == "old"
@@ -41,7 +42,7 @@ classdef monkey < handle
                 operationDoub = obj.operationCon.double();
             end
             obj.items(idx) = obj.operationFun(obj.items(idx),operationDoub);
-%             obj.items(idx) = floor(obj.items(idx)/3);
+            obj.items(idx) = floor(obj.items(idx)/worrinessReductionFactor);
             if mod(obj.items(idx), obj.testCons) == 0
                 location = obj.trueResult;
             else

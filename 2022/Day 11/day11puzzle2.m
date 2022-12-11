@@ -1,4 +1,4 @@
-%% day11puzzle3 - Daniel Breslan - Advent Of Code 2022
+%% day11puzzle2 - Daniel Breslan - Advent Of Code 2022
 clc
 data = readlines("input.txt").join(";").split(";;");
 [~,tok,~] = regexp(data,"Monkey (\d+):;\s+Starting items:" + ...
@@ -14,11 +14,12 @@ for idx = 1:numel(tok)
 end
 modder = prod(vertcat(monkeys.testCons));
 maxWorry = 0;
-n = 10000;
+n = 20;
 for ridx = 1:n
     for midx = 1:numel(monkeys)
         for iidx = 1:numel(monkeys(midx).items)
-        	[location, worryLevel] = monkeys(midx).locationToSendItem(modder);
+        	[location, worryLevel] = monkeys(midx).locationToSendItem(...
+                modder,3);
             monkeys(location).addItem(worryLevel);
         end
     end
