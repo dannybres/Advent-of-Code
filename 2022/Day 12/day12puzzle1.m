@@ -1,47 +1,38 @@
 %% day12puzzle1 - Daniel Breslan - Advent Of Code 2022
-clear
-clc
 data = char(readlines("input.txt"));
-data(1,1) = 'a';
 
-[r,c] = find(data == 'E');
-locs = [r,c];
-data(data == 'E') = 'z';
-data = double(data) - double('a') + 1;
-day12puzzle1result = 0;
-completedPaths = cell(0);
-deadPlaces = ones(0,2);
-[completedPaths, deadPlaces] = moveMe(data, locs, completedPaths, deadPlaces);
-min(cellfun(@numel, completedPaths)/2)-1
+[startR,startC] = find(data == 'S');            % find start point
+data(startR,startC) = 'a';                      % fix start point
+[bestSignalR,bestSignalC] = find(data == 'E');  % find best signal
+data(bestSignalR,bestSignalC) = 'z';            % fix best signal
 
-function [completedPaths, deadPlaces] = moveMe(data, locs, completedPaths, deadPlaces)
-ogLocs = locs;
-for i = 1:5000
-    currentLocation = locs(end,:);
-    if all(currentLocation == [1 1])
-        completedPaths = [completedPaths {locs}];
-        return
+data = double(data) - double('a') + 1;          % a-z to 1-26
+
+d = digraph;                                    % Make digraph
+
+n = "Tree" + (1:size(data,1)) + "_" + (1:size(data,2))'; % list all nodes
+d = addnode(d,n(:));                            % add nodes
+
+for r = 1:size(data,1)
+    for c = 1:size(data,2)
+        mover = [0 1; 1 0; 0 -1; -1 0];
+        opts = [r c] + mover;
+        opts = opts(~any(opts < 1,2),:); % remove off the left & top
+        opts = opts(~(opts(:,1) > size(data,1)),:); % remove off right
+        opts = opts(~(opts(:,2) > size(data,2)),:); % remove off bottom
+        moveTo = opts(data(sub2ind(size(data),opts(:,1),opts(:,2))) <=...
+        data(r,c) + 1,:); % find where move is possible (@ most one higher)
+        to  = "Tree" + moveTo(:,1) + "_" + moveTo(:,2); % change to node
+        d = addedge(d,"Tree" + r + "_" + c,to); % add edges
     end
-    mover = [0 1; 1 0; 0 -1; -1 0];
-    options = currentLocation + mover;
-    options = options(~any(options < 1,2),:);
-    options = options(~(options(:,2) > size(data,2)),:);
-    options = options(~(options(:,1) > size(data,1)),:);
-    moveTo = options(data(sub2ind(size(data),options(:,1),options(:,2))) >=...
-        data(currentLocation(1),currentLocation(2)) - 1,:);
-    moveTo = moveTo(~ismember(moveTo,locs,'rows'),:);
-%     moveTo = moveTo(~ismember(moveTo,deadPlaces,'rows'),:);
-    if size(moveTo,1) > 1
-        for idx = 1:size(moveTo,1)
-	        [completedPaths, deadPlaces] = moveMe(data, [locs; moveTo(idx,:)], completedPaths, deadPlaces);
-            deadPlaces = [deadPlaces;moveTo(idx,:)];
-        end
-    elseif size(moveTo,1) == 0
-        deadPlaces = [deadPlaces; locs(~ismember(locs,ogLocs,'rows'),:)];
-        return
-    end
-    locs = [locs; moveTo]; %#ok<*AGROW> 
-end
 end
 
+bestSignalNode = "Tree" + bestSignalR + "_" + bestSignalC;
+startNode = "Tree" + startR + "_" + startC;
+path = shortestpath(d,startNode,bestSignalNode);
+day12puzzle1result = numel(path)-1 %#ok<NOPTS> 
+
+
+coords = reshape(path.erase("Tree").split("_").double(),[],2);
+plot(coords(:,1),coords(:,2))
 
