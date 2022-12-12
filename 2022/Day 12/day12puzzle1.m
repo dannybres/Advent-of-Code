@@ -1,7 +1,7 @@
 %% day12puzzle1 - Daniel Breslan - Advent Of Code 2022
 clear
 clc
-data = char(readlines("inputDemo.txt"));
+data = char(readlines("input.txt"));
 data(1,1) = 'a';
 
 [r,c] = find(data == 'E');
@@ -9,14 +9,17 @@ locs = [r,c];
 data(data == 'E') = 'z';
 data = double(data) - double('a') + 1;
 day12puzzle1result = 0;
+completedPaths = cell(0);
+deadPlaces = ones(0,2);
+[completedPaths, deadPlaces] = moveMe(data, locs, completedPaths, deadPlaces);
+min(cellfun(@numel, completedPaths)/2)-1
 
-moveMe(data, locs)
-
-function completePaths = moveMe(data, locs)
-for idx = 1:500
+function [completedPaths, deadPlaces] = moveMe(data, locs, completedPaths, deadPlaces)
+ogLocs = locs;
+for i = 1:5000
     currentLocation = locs(end,:);
     if all(currentLocation == [1 1])
-        warning("SUCESS!")
+        completedPaths = [completedPaths {locs}];
         return
     end
     mover = [0 1; 1 0; 0 -1; -1 0];
@@ -27,13 +30,17 @@ for idx = 1:500
     moveTo = options(data(sub2ind(size(data),options(:,1),options(:,2))) >=...
         data(currentLocation(1),currentLocation(2)) - 1,:);
     moveTo = moveTo(~ismember(moveTo,locs,'rows'),:);
-    if size(moveTo,1) ~= 1
-        warning("too many, move to is:")
-        disp(moveTo)
+%     moveTo = moveTo(~ismember(moveTo,deadPlaces,'rows'),:);
+    if size(moveTo,1) > 1
+        for idx = 1:size(moveTo,1)
+	        [completedPaths, deadPlaces] = moveMe(data, [locs; moveTo(idx,:)], completedPaths, deadPlaces);
+            deadPlaces = [deadPlaces;moveTo(idx,:)];
+        end
     elseif size(moveTo,1) == 0
-        error("dead end")
+        deadPlaces = [deadPlaces; locs(~ismember(locs,ogLocs,'rows'),:)];
+        return
     end
-    locs = [locs; moveTo];
+    locs = [locs; moveTo]; %#ok<*AGROW> 
 end
 end
 
