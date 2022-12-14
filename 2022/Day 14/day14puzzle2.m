@@ -1,4 +1,5 @@
 %% day14puzzle2 - Daniel Breslan - Advent Of Code 2022
+tic
 data = readlines("input.txt");
 cave = char();
 
@@ -12,51 +13,48 @@ for idx = 1:numel(data)
             max(paths(pidx,1),paths(pidx+1,1))) = '#';
     end
 end
-
+cave = [cave repmat(char(0),size(cave,1),size(cave,1))];
 bottomOfCave = size(cave,1);
-
 cave(bottomOfCave+2,:) = '#';
 
-%%
+
 % Falling Sand
 unit = 0;
 while 1
-    % for q = 1:93
-    fallingSand = [0 501];
+    fallingSandD = nan(size(cave,1)+1,2);
+    fallingSandD(1,:) = [0 501];
+    fsidx = 1;
     while 1
-        clear newSpace
-        if double(cave(fallingSand(end,1)+1,fallingSand(end,2))) == 0
+        lastSand = fallingSandD(fsidx,:);
+        fsidx = fsidx + 1;
+        newSpace = nan(1,2);
+        if double(cave(lastSand(1)+1,lastSand(2))) == 0
             % empty below
-            newSpace = fallingSand(end,:) + [1 0];
-        elseif double(cave(fallingSand(end,1)+1,fallingSand(end,2)-1)) == 0
+            newSpace = lastSand + [1 0];
+        elseif double(cave(lastSand(1)+1,lastSand(2)-1)) == 0
             % empty left below
-            newSpace = fallingSand(end,:) + [1 -1];
-        elseif double(cave(fallingSand(end,1)+1,fallingSand(end,2)+1)) == 0
+            newSpace = lastSand + [1 -1];
+        elseif double(cave(lastSand(1)+1,lastSand(2)+1)) == 0
             % empty right below
-            newSpace = fallingSand(end,:) + [1 1];
+            newSpace = lastSand + [1 1];
         end
-        if exist('newSpace','var')
+        if ~all(isnan(newSpace))
             % add next falling space
-            fallingSand = [fallingSand; newSpace];
+            fallingSandD(fsidx,:) = newSpace;
         else
             % no more space to move
             break
         end
     end
-    cave(fallingSand(end,1),fallingSand(end,2)) = '+'; % mark sand
-
-    if fallingSand(end,2)+1 == size(cave,2) % make cave bigger
-        cave = [cave repmat(char(0),size(cave,1),2)];
-        cave(end,:) = '#';
-    end
+    cave(lastSand(1),lastSand(2)) = '+'; % mark sand
     unit = unit + 1; % increment unit count
-    if all(fallingSand(end,:) == [1 501])
+    if all(lastSand == [1 501])
         break
     end
 end
-cave(:,490:end)
+cave(:,find(any(cave == '+'),1)-2:end)
 day14puzzle2result = unit %#ok<NOPTS>
-
+toc
 %% visualise
 f = figure();
 cc = cave(:,find(any(cave == '+'),1)-2:end);
