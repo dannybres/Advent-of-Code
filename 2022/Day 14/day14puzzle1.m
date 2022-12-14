@@ -59,7 +59,7 @@ day14puzzle1result = unit %#ok<NOPTS>
 
 %% visualise
 f = figure();
-cc = cave(:,find(any(cave == '+'),1)-10:end);
+cc = cave(:,find(any(cave == '+'),1)-2:end);
 img = ones(size(cc,1),size(cc,2),3);
 idxAll = false(size(cc));
 idxWall = cc == '#';
@@ -70,5 +70,6 @@ img(:,:,1) = idxWall;
 img(:,:,2) = idxSand;
 img(:,:,3) = idxLast;
 
-imshow(imresize(img,5))
+imshow(repelem(img,5,5))
+title(day14puzzle1result + " units of sand come to rest")
 saveas(f,'Puzzle1.png')
