@@ -1,22 +1,18 @@
 %% day15puzzle2 - Daniel Breslan - Advent Of Code 2022
 data = readlines("input.txt").erase(["Sensor at x=", " y=",...
     "closest beacon is at x="]).replace(": ",",").split(",").double();
-
-sz = 4000000;
-for r = 97100:sz
-    if mod(r,1000) == 0
-        disp(r)
-    end
-    t = array2table(data,VariableNames=["sx","sy","bx","by"]);
-    t = [t table(abs(t.sy-t.by) + abs(t.sx-t.bx),VariableNames="md")];
-    from = t.sx - t.md + abs(t.sy-r);
-    to = t.sx + t.md - abs(t.sy-r);
+data = [data zeros(size(data,1),3)];
+sz = 4e6; 
+for r = 1:sz
+    data(:,5) = abs(data(:,2)-data(:,4)) + abs(data(:,1)-data(:,3));
+    from = data(:,1) - data(:,5) + abs(data(:,2)-r);
+    to = data(:,1) + data(:,5) - abs(data(:,2)-r);
     from(from > to) = nan;
     to(isnan(from)) = nan;
-    t = [t table(from, to)];
-
-    ranges = t{~isnan(t.to),["from","to"]};
-
+    data(:,6) = from;
+    data(:,7) = to;
+    ranges = min(max(data(~isnan( data(:,7)),6:7), 1),sz);
+ 
     res = ranges(1,:);
     for idx = 2:size(ranges,1)
         thisRange = ranges(idx,:);
@@ -29,8 +25,7 @@ for r = 97100:sz
         res = [res; [min(allRangesExisting) max(allRangesExisting)]]; %#ok<AGROW>
     end
     if size(res,1) > 1
-        res
         break
     end
 end
-(res(1,2) + 1) * 4000000 + r
+day15puzzle2result = (res(1,2) + 1) * 4000000 + r %#ok<NOPTS>

@@ -2,7 +2,6 @@
 data = readlines("input.txt").erase(["Sensor at x=", " y=",...
     "closest beacon is at x="]).replace(": ",",").split(",").double();
 r = 2000000;
-% r = 10;
 
 t = array2table(data,VariableNames=["sx","sy","bx","by"]);
 t = [t table(abs(t.sy-t.by) + abs(t.sx-t.bx),VariableNames="md")];
@@ -21,8 +20,7 @@ for idx = 2:size(ranges,1)
     allRangesExisting = res(overlap,:);
     allRangesExisting = [allRangesExisting(:); thisRange(:)];
     res(overlap,:) = [];
-    res = [res; [min(allRangesExisting) max(allRangesExisting)]]; %#ok<AGROW> 
+    res = [res; [min(allRangesExisting) max(allRangesExisting)]];
 end
-
 unBea = unique(t{t.by == r,["bx","by"]},"rows");
-day15puzzle1result = res(2) - res(1) + 1 -size(unBea,1) %#ok<NOPTS> 
+day15puzzle1result = res(2) - res(1) + 1 - size(unBea,1)
