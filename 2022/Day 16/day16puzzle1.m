@@ -1,75 +1,46 @@
 %% day16puzzle1 - Daniel Breslan - Advent Of Code 2022
-close all
-data = readlines("input.txt").erase(["Valve ","has flow rate=", ...
-    "; tunnels lead to valves" "; tunnel leads to valve" ","]);
+[vlu,dlu,allVals] = getData("input.txt")
 
-g = digraph;
-g = addnode(g,data.extractBefore(3));
-for idx = 1:numel(data)
-    prts = data(idx).split(" ");
-    newEdge = prts(3:end);
-    g = addedge(g,prts(1), newEdge);
-end
-vlu = dictionary(["AA"; data(data.extractBetween(3, 5).double() ~= 0) ...
-    .extractBefore(3)], [0; data(data.extractBetween(3, 5) ...
-    .double() ~= 0).extractBetween(3, 5).double()]);
-allVals = ["AA"; data(data.extractBetween(3, 5).double() ~= 0)...
-    .extractBefore(3)];
+paths = [repelem(allVals(1),numel(allVals),1) allVals]; %make path to V1
+t = dlu(paths(:,end-1) + paths(:,end)) + 1; % calc t to open v1
+pres = (30 - t) .* vlu(paths(:,end)); %calc p from these v1
 
-dist = zeros(numel(allVals),numel(allVals));
-for r = 1:numel(allVals)
-    for c = 1:numel(allVals)
-        if r == c
-            continue
-        end
-        dist(r,c) = numel(shortestpath(g, allVals(r),allVals(c))) - 1;
-    end
-end
+tLimit = 30;
 
-allLoc = allVals + allVals';
-allLoc = allLoc(:);
+maxSoFar = 0; %keep track of Max Pressure
+while 1 %loooooooop
+    newEle = repmat(allVals,numel(t),1); % new places (all valves)
+    paths = repelem(paths,numel(allVals),1); % suplicate paths for new v
+    paths = [paths newEle]; % add lest valve
 
-dlu = dictionary(allLoc,dist(:));
+    t = repelem(t,numel(allVals),1); % duplicate times
+    pres = repelem(pres,numel(allVals),1);  % duplicate press
 
-paths = [repelem(allVals(1),numel(allVals),1) allVals];
-t = dlu(paths(:,end-1) + paths(:,end)) + 1; % open
-pres = (30 - t) .* vlu(paths(:,end));
+    t = t + dlu(paths(:,end-1) + paths(:,end)) + 1; % calc new time
+    pres = pres + (30 - t) .* vlu(paths(:,end)); % calc new P
 
-keep =  false(size(paths,1),1);
+    keep =  false(size(paths,1),1); % remove duplicates of V
     for iidx = 1:size(paths,1)
         if(numel(unique(paths(iidx,:))) == size(paths,2))
             keep(iidx) = true;
         end
     end
-    paths = paths(keep,:);
+
+    keep = keep & pres >= max(pres) * .7; % remove bottom 75% of pressure
+
+    paths = paths(keep,:); %trim
     t = t(keep,:);
     pres = pres(keep,:);
-maxSoFar = 0;
-while 1
-    newEle = repmat(allVals,numel(t),1);
-    paths = repelem(paths,numel(allVals),1);
-    paths = [paths newEle];
-    t = repelem(t,numel(allVals),1);
-    pres = repelem(pres,numel(allVals),1);
-    t = t + dlu(paths(:,end-1) + paths(:,end)) + 1;
-    pres = pres + (30 - t) .* vlu(paths(:,end));
-    keep =  false(size(paths,1),1);
-    for iidx = 1:size(paths,1)
-        if(numel(unique(paths(iidx,:))) == size(paths,2))
-            keep(iidx) = true;
-        end
-    end
-    paths = paths(keep,:);
-    t = t(keep,:);
-    pres = pres(keep,:);
-    paths = paths(t<30,:);
-    pres = pres(t<30,:);
-    t = t(t<30,:);
-    mmm = pres(pres == max(pres) & t <=30);
+
+    paths = paths(t<tLimit,:); %remove paths over limit
+    pres = pres(t<tLimit,:);
+    t = t(t<tLimit,:);
+
+    mmm = pres(pres == max(pres) & t <=30); %update max pressure
     if isempty(mmm)
         break
     else
         maxSoFar = max(maxSoFar, mmm);
     end
 end
-maxSoFar %#ok<NOPTS> 
+day16puzzle1result = maxSoFar %#ok<NOPTS>
