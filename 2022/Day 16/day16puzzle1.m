@@ -1,46 +1,34 @@
 %% day16puzzle1 - Daniel Breslan - Advent Of Code 2022
-[vlu,dlu,allVals] = getData("input.txt")
+tic
+[vlu,dlu,allVals] = getData("input.txt");
 
-paths = [repelem(allVals(1),numel(allVals),1) allVals]; %make path to V1
-t = dlu(paths(:,end-1) + paths(:,end)) + 1; % calc t to open v1
-pres = (30 - t) .* vlu(paths(:,end)); %calc p from these v1
+indices = dictionary(allVals,1:numel(allVals));
 
-tLimit = 30;
+cache = dictionary(string.empty,double.empty);
+day16puzzle1result = dfs(30, "AA", 0, dlu, vlu, indices, cache);
 
-maxSoFar = 0; %keep track of Max Pressure
-while 1 %loooooooop
-    newEle = repmat(allVals,numel(t),1); % new places (all valves)
-    paths = repelem(paths,numel(allVals),1); % suplicate paths for new v
-    paths = [paths newEle]; % add lest valve
+maxVal
+toc
 
-    t = repelem(t,numel(allVals),1); % duplicate times
-    pres = repelem(pres,numel(allVals),1);  % duplicate press
-
-    t = t + dlu(paths(:,end-1) + paths(:,end)) + 1; % calc new time
-    pres = pres + (30 - t) .* vlu(paths(:,end)); % calc new P
-
-    keep =  false(size(paths,1),1); % remove duplicates of V
-    for iidx = 1:size(paths,1)
-        if(numel(unique(paths(iidx,:))) == size(paths,2))
-            keep(iidx) = true;
-        end
+function [maxval, cache] = dfs(time, valve, bitmask, dlu, vlu, indices, cache)
+    if isKey(cache,time + valve + bitmask)
+        maxval = cache(time + valve + bitmask);
+        return
     end
-
-    keep = keep & pres >= max(pres) * .7; % remove bottom 75% of pressure
-
-    paths = paths(keep,:); %trim
-    t = t(keep,:);
-    pres = pres(keep,:);
-
-    paths = paths(t<tLimit,:); %remove paths over limit
-    pres = pres(t<tLimit,:);
-    t = t(t<tLimit,:);
-
-    mmm = pres(pres == max(pres) & t <=30); %update max pressure
-    if isempty(mmm)
-        break
-    else
-        maxSoFar = max(maxSoFar, mmm);
+    maxval = 0;
+    for neighbour = dlu(valve).keys'
+        bit = bitshift(1,indices(neighbour));
+        if bitand(bit,bitmask)
+            continue
+        end
+        dForV = dlu(valve);
+        remtime = time - dForV(neighbour) - 1;
+        if remtime <= 0 
+            continue
+        end
+        [mmm, cache] = dfs(remtime, neighbour, bitor(bitmask,bit),...
+            dlu, vlu, indices, cache);
+        maxval = max(maxval, mmm + vlu(neighbour) * remtime);
+        cache(time + valve + bitmask) = maxval;
     end
 end
-day16puzzle1result = maxSoFar %#ok<NOPTS>

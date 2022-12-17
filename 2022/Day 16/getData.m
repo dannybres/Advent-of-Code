@@ -1,6 +1,16 @@
 function [vlu,dlu,allVals] = getData(fn)
 data = readlines(fn).erase(["Valve ","has flow rate=", ...
     "; tunnels lead to valves" "; tunnel leads to valve" ","]);
+
+%% All valves
+allVals = ["AA"; data(data.extractBetween(3, 5).double() ~= 0)...
+    .extractBefore(3)];
+
+%% Valve Magnitude
+vlu = dictionary(data(data.extractBetween(3, 5).double() ~= 0) ...
+    .extractBefore(3), data(data.extractBetween(3, 5) ...
+    .double() ~= 0).extractBetween(3, 5).double());
+%% Distance from Any to Any
 g = digraph;
 g = addnode(g,data.extractBefore(3));
 for idx = 1:numel(data)
@@ -8,12 +18,8 @@ for idx = 1:numel(data)
     newEdge = prts(3:end);
     g = addedge(g,prts(1), newEdge);
 end
-vlu = dictionary(["AA"; data(data.extractBetween(3, 5).double() ~= 0) ...
-    .extractBefore(3)], [0; data(data.extractBetween(3, 5) ...
-    .double() ~= 0).extractBetween(3, 5).double()]);
-allVals = ["AA"; data(data.extractBetween(3, 5).double() ~= 0)...
-    .extractBefore(3)];
 
+%% distance between all points
 dist = zeros(numel(allVals),numel(allVals));
 for r = 1:numel(allVals)
     for c = 1:numel(allVals)
@@ -24,9 +30,16 @@ for r = 1:numel(allVals)
     end
 end
 
-allLoc = allVals + allVals';
-allLoc = allLoc(:);
-
-dlu = dictionary(allLoc,dist(:));
+allDist = dictionary();
+for idx = 1:size(dist(:,1))
+    distances = dist(idx,:)';
+    vals = allVals(distances ~= 0)';
+    distances = distances(distances ~= 0)';
+    distances = distances(vals ~= "AA");
+    vals = vals(vals ~= "AA");
+    allDist(allVals(idx)) = dictionary(vals, distances);
 end
+dlu = allDist;
 
+
+allVals = allVals(2:end)';
