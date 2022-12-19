@@ -1,4 +1,6 @@
 %% day16puzzle2 - Daniel Breslan - Advent Of Code 2022
+% Tutorial: https://www.youtube.com/watch?v=bLMj50cpOug
+
 [vlu,dlu,allVals] = getData("input.txt");
 
 indices = dictionary(allVals,0:numel(allVals)-1);
