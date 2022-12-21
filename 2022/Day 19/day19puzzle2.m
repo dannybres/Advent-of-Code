@@ -11,7 +11,7 @@ blueprints = vertcat(blueprints{:});
 blueprints = vertcat(blueprints{:});
 tic
 results = zeros(1,height(blueprints));
-for idx = 1:3%height(blueprints)
+for idx = 1:3
     blueprint{1} = [blueprints(idx,1).double 0 0 0];
     blueprint{2} = [blueprints(idx,2).double 0 0 0];
     blueprint{3} = [blueprints(idx,3).double blueprints(idx,4).double 0 0];
@@ -27,10 +27,10 @@ for idx = 1:3%height(blueprints)
     tRemaining = 32;
 
     results(idx) = search(resources, robots, tRemaining, blueprint, ...
-        maxVals, 0);% run
+        maxVals, 0);
 end
 
-day19puzzle1result = prod(results(1:3))
+day19puzzle2result = prod(results(1:3)) %#ok<NOPTS> 
 toc
 % profile viewer
 

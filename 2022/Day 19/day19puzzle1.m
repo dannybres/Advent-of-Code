@@ -1,6 +1,5 @@
 % day19puzzle1 - Daniel Breslan - Advent Of Code 2022
 % profile on
-clear
 data = readlines("input.txt");
 [~,blueprints] = regexp(data,"Blueprint \d+: Each ore robot costs" + ...
     " (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian" + ...
@@ -30,7 +29,7 @@ for idx = 1:height(blueprints)
         maxVals, 0);% run
 end
 
-day19puzzle1result = sum(results .* (1:numel(results)))
+day19puzzle1result = sum(results .* (1:numel(results))) %#ok<NOPTS> 
 toc
 % profile viewer
 
