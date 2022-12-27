@@ -1,7 +1,7 @@
 %% day17puzzle1 - Daniel Breslan - Advent Of Code 2022
 clear
 clc
-gusts = readlines("inputDemo.txt").replace(["<",">"],["-1,","1,"]).split(",").double';
+gusts = readlines("input.txt").replace(["<",">"],["-1,","1,"]).split(",").double';
 gusts(end) = [];
 
 atRest = [zeros(7,1) (1:7)'];
@@ -14,7 +14,7 @@ pieces = {[1 3;1 4;1 5; 1 6],... % -
 % y x isUpper isLower
 
 gustIdx = 1;
-blocks = 6000;
+blocks = 10e3;
 finalLocatsTokeep = 15;
 height = nan(blocks,1);
 startingPoint = nan(blocks,2 + 2*(finalLocatsTokeep+1));
@@ -48,10 +48,20 @@ for nextPieceIdx = 1:blocks
     height(nextPieceIdx) = max(atRest(:,1));
 end
 
-floor(1000000000000/30) + height(30) 
+%%
+cycleSize = 1735;
+cycleHeight = 2695;
 
-day17puzzle1result = max(atRest(:,1)) %#ok<NOPTS>
+blocksNeeded = 1000000000000;
+ 
+cycles = floor(1000000000000/cycleSize);
 
+cycles = cycles - 1;
+
+day17puzzle1result = cycles * cycleHeight + height(blocksNeeded ...
+    - cycles * cycleSize)
+
+% too high = 1553314121033
 
 function [piece, gustIdx] = movePieceSide(piece, atRest, gusts, gustIdx)
 gustIdx = mod(gustIdx,numel(gusts));
