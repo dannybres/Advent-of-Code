@@ -17,7 +17,7 @@ pieces = {[1 3;1 4;1 5; 1 6],... % -
 gustIdx = 1;
 blocks = 5e3;
 finalLocatsTokeep = 15;
-height = nan(blocks,1);
+heightOfBlocks = nan(blocks,1);
 startingPoint = nan(blocks,2 + 2*(finalLocatsTokeep+1));
 for nextPieceIdx = 1:blocks
     NextPieceToFall = mod(nextPieceIdx,numel(pieces));
@@ -49,15 +49,16 @@ for nextPieceIdx = 1:blocks
     end
 
     atRest = [atRest; nextPiece];
-    height(nextPieceIdx) = max(atRest(:,1));
+    heightOfBlocks(nextPieceIdx) = max(atRest(:,1));
 end
 
 
-crossCheck = diff(height((1:50) + (numel(height)/2:numel(height)-50)'),2);
+crossCheck = diff(heightOfBlocks((1:50) + (numel(heightOfBlocks)/2 ...
+    :numel(heightOfBlocks)-50)'),2);
 cycleSize = find(all(crossCheck(1,:) == crossCheck(2:end,:),2));
 cycleSize = cycleSize(1);
 
-cycleHeight = height(end) - height(end - cycleSize);
+cycleHeight = heightOfBlocks(end) - heightOfBlocks(end - cycleSize);
 
 blocksNeeded = 1000000000000;
  
@@ -65,8 +66,8 @@ cycles = floor(1000000000000/cycleSize);
 
 cycles = cycles - 1;
 
-day17puzzle2result = cycles * cycleHeight + height(blocksNeeded ...
-    - cycles * cycleSize);
+day17puzzle2result = cycles * cycleHeight + heightOfBlocks(blocksNeeded ...
+    - cycles * cycleSize) %#ok<NOPTS> 
 
 function [piece, gustIdx] = movePieceSide(piece, atRest, gusts, gustIdx)
 gustIdx = mod(gustIdx,numel(gusts));
