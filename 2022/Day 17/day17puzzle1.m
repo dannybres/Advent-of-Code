@@ -48,7 +48,6 @@ for nextPieceIdx = 1:blocks
     height(nextPieceIdx) = max(atRest(:,1));
 end
 
-%%
 cycleSize = 1735;
 cycleHeight = 2695;
 
