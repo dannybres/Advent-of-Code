@@ -1,6 +1,6 @@
 %% day22puzzle2 - Daniel Breslan - Advent Of Code 2022
 clc
-data = readlines("input.txt");
+data = readlines("inputDemo.txt");
 map = char(data(1:find(data == "")-1));
 instructions = [data(find(data == "")+1:end).replace(["L","R"],...
     [",-1," ",1,"]).split(",").double; nan];
@@ -9,12 +9,18 @@ directions = instructions(2:2:end);
 
 facings = [-1 0; 0 1; 1 0; 0 -1]; % U R D L
 
+arrowLU = ["^",">","V","<"];
+
 facingsResult = dictionary(1:4,[3 0 1 2]);
 
 currentDirection = 2;
-currentPosition = [1, find(map(1,:) == '.',1)];
+currentPosition = [1, find(map(1,:) == '.',1)]
+
+visMap = map;
 
 for instIdx = 1:numel(steps)
+    visMap(currentPosition(1),currentPosition(2)) = char(arrowLU(currentDirection));
+
     for idx = 1:steps(instIdx)
         newPosition = currentPosition + facings(currentDirection,:);
         newDirection = currentDirection;
@@ -55,6 +61,7 @@ for instIdx = 1:numel(steps)
             % open space
             currentPosition = newPosition;
             currentDirection = newDirection;
+            visMap(currentPosition(1),currentPosition(2)) = char(arrowLU(currentDirection));
         end
     end
     if ~isnan(directions(instIdx))
@@ -66,14 +73,16 @@ for instIdx = 1:numel(steps)
     %wrap the
     currentDirection(currentDirection == 0) = 4; %#ok<*SAGROW>
     currentDirection(currentDirection == 5) = 1;
-
+%     currentPosition
 end
 
 day22puzzle2result = sum(currentPosition .* [1000 4]) + ...
     facingsResult(currentDirection) %#ok<NOPTS>
+visMap
 
 % 108056 - your answer is too high
-
+% 17538 - your answer is too high
+% 2313 - your answer is too low
 
 function [newPosition, direction] = unwrapTheMap(map, position, horizontal, positiveDirection)
 sizeDim = sqrt(nnz(map ~= ' ') / 6);
@@ -122,11 +131,20 @@ elseif all([horizontal positiveDirection] == [1 1])
 end
 
 % find exit
-if originSquare.extract(2) == "b" | originSquare.extract(2) == "d"
-    exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
-else
-    exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
+switch originSquare.extract(2)
+    case "a"
+        exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
+    case "b"
+        exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
+    case "c"
+        exitPoint = originSqCoords(2) * sizeDim - position(2) + 1;
+    case "d"
+        exitPoint = originSqCoords(1) * sizeDim - position(1) + 1;
 end
+% if originSquare.extract(2) == "b" | originSquare.extract(2) == "d"
+%     
+% else
+% end
 
 % find entry
 finalSquare = edgeMap(originSquare);
