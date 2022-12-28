@@ -1,6 +1,6 @@
 %% day22puzzle2 - Daniel Breslan - Advent Of Code 2022
 clc
-data = readlines("inputDemo.txt");
+data = readlines("input.txt");
 map = char(data(1:find(data == "")-1));
 instructions = [data(find(data == "")+1:end).replace(["L","R"],...
     [",-1," ",1,"]).split(",").double; nan];
@@ -66,20 +66,30 @@ for instIdx = 1:numel(steps)
     %wrap the
     currentDirection(currentDirection == 0) = 4; %#ok<*SAGROW>
     currentDirection(currentDirection == 5) = 1;
+
 end
 
 day22puzzle2result = sum(currentPosition .* [1000 4]) + ...
     facingsResult(currentDirection) %#ok<NOPTS>
 
+% 108056 - your answer is too high
+
 
 function [newPosition, direction] = unwrapTheMap(map, position, horizontal, positiveDirection)
-sizeDim = size(map,1)/3;
+sizeDim = sqrt(nnz(map ~= ' ') / 6);
 newPosition = [0 0];
 
-% make edge map - I could automate this...
-from = ["1a", "3a", "6a", "1b", "2c", "3c", "2d"];
-to   = ["2a", "1d", "4b", "6b", "5c", "5d", "6c"];
-edgeMap = dictionary([from to], [to from]);
+if sizeDim == 4
+    % make edge map - I could automate this...
+    from = ["1a", "3a", "6a", "1b", "2c", "3c", "2d"];
+    to   = ["2a", "1d", "4b", "6b", "5c", "5d", "6c"];
+    edgeMap = dictionary([from to], [to from]);
+else
+    % make edge map - I could automate this...
+    from = ["3d", "1d", "2c", "2b", "5c", "1a", "2a"];
+    to   = ["4a", "4d", "3b", "5b", "6b", "6d", "6c"];
+    edgeMap = dictionary([from to], [to from]);
+end
 
 % make mini map based on map
 miniMap = flipud(rot90(map(1:sizeDim:end,1:sizeDim:end)));
@@ -112,10 +122,10 @@ elseif all([horizontal positiveDirection] == [1 1])
 end
 
 % find exit
-if originSquare.extract(2) == "b" | originSquare.extract(2) == "d" 
-        exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
+if originSquare.extract(2) == "b" | originSquare.extract(2) == "d"
+    exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
 else
-        exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
+    exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
 end
 
 % find entry
@@ -124,21 +134,23 @@ finalSquare = edgeMap(originSquare);
 finalSqCoords = [r c];
 switch finalSquare.extract(2)
     case "a"
-        newPosition(1) = finalSqCoords(1) - 1) * sizeDim + 1;
-        newPosition(2) = finalSqCoords(2) - 1) * sizeDim + exitPoint
-        direction = 2;
-    case "b"
-        newPosition(1)
-        newPosition(2)
+        newPosition(1) = (finalSqCoords(1) - 1) * sizeDim + 1;
+        newPosition(2) = finalSqCoords(2) * sizeDim - exitPoint + 1;
         direction = 3;
+    case "b"
+        newPosition(1) = finalSqCoords(1) * sizeDim - exitPoint + 1;
+        newPosition(2) = finalSqCoords(2) * sizeDim;
+        direction = 4;
     case "c"
-        newPosition(1)
-        newPosition(2)
+        newPosition(1) = finalSqCoords(1) * sizeDim;
+        newPosition(2) = finalSqCoords(2) * sizeDim - exitPoint + 1;
         direction = 1;
     case "d"
-        newPosition(1)
-        newPosition(2)
-        direction = 4;
+        newPosition(1) = (finalSqCoords(1) - 1) * sizeDim + exitPoint;
+        newPosition(2) = (finalSqCoords(2) - 1) * sizeDim + 1;
+        direction = 2;
 end
 
 end
+
+% U R D L
