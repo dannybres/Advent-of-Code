@@ -1,6 +1,6 @@
 %% day22puzzle2 - Daniel Breslan - Advent Of Code 2022
 clc
-data = readlines("inputDemo.txt");
+data = readlines("input.txt");
 map = char(data(1:find(data == "")-1));
 instructions = [data(find(data == "")+1:end).replace(["L","R"],...
     [",-1," ",1,"]).split(",").double; nan];
@@ -161,7 +161,7 @@ switch finalSquare.extract(2)
         direction = 4;
     case "c"
         newPosition(1) = finalSqCoords(1) * sizeDim;
-        newPosition(2) = finalSqCoords(2) * sizeDim - exitPoint + 1;
+        newPosition(2) = (finalSqCoords(2) - 1) * sizeDim + exitPoint;
         direction = 1;
     case "d"
         newPosition(1) = (finalSqCoords(1) - 1) * sizeDim + exitPoint;
