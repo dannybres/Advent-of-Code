@@ -1,5 +1,4 @@
 %% day22puzzle2 - Daniel Breslan - Advent Of Code 2022
-clc
 data = readlines("input.txt");
 map = char(data(1:find(data == "")-1));
 instructions = [data(find(data == "")+1:end).replace(["L","R"],...
@@ -8,6 +7,8 @@ steps = instructions(1:2:end);
 directions = instructions(2:2:end);
 
 facings = [-1 0; 0 1; 1 0; 0 -1]; % U R D L
+
+arrowLU = ["^",">","V","<"];
 
 facingsResult = dictionary(1:4,[3 0 1 2]);
 
@@ -20,16 +21,20 @@ for instIdx = 1:numel(steps)
         newDirection = currentDirection;
         if newPosition(1) == 0
             % U
-            [newPosition, newDirection] = unwrapTheMap(map,newPosition,0,0);
+            [newPosition, newDirection] = unwrapTheMap(map,newPosition,...
+                0,0);
         elseif newPosition(2) > size(map,2)
             % R
-            [newPosition, newDirection] = unwrapTheMap(map,newPosition,1,1);
+            [newPosition, newDirection] = unwrapTheMap(map,newPosition,...
+                1,1);
         elseif newPosition(1) > size(map,1)
             % D
-            [newPosition, newDirection] = unwrapTheMap(map,newPosition,0,1);
+            [newPosition, newDirection] = unwrapTheMap(map,newPosition,...
+                0,1);
         elseif newPosition(2) == 0
             % L
-            [newPosition, newDirection] = unwrapTheMap(map,newPosition,1,0);
+            [newPosition, newDirection] = unwrapTheMap(map,newPosition,...
+                1,0);
         end
 
 
@@ -37,13 +42,17 @@ for instIdx = 1:numel(steps)
             % U
             switch currentDirection
                 case 1 % U
-                    [newPosition, newDirection] = unwrapTheMap(map,newPosition,0,0);
+                    [newPosition, newDirection] = unwrapTheMap(map, ...
+                        newPosition,0,0);
                 case 2 % R
-                    [newPosition, newDirection] =  unwrapTheMap(map,newPosition,1,1);
+                    [newPosition, newDirection] =  unwrapTheMap(map, ...
+                        newPosition,1,1);
                 case 3 % D
-                    [newPosition, newDirection] =  unwrapTheMap(map,newPosition,0,1);
+                    [newPosition, newDirection] =  unwrapTheMap(map, ...
+                        newPosition,0,1);
                 case 4 % L
-                    [newPosition, newDirection] =  unwrapTheMap(map,newPosition,1,0);
+                    [newPosition, newDirection] =  unwrapTheMap(map, ...
+                        newPosition,1,0);
             end
         end
 
@@ -61,8 +70,7 @@ for instIdx = 1:numel(steps)
         % if direction to turn, do it.
         currentDirection = currentDirection + directions(instIdx);
     end
-    
-%     currentPosition
+
     %wrap the
     currentDirection(currentDirection == 0) = 4; %#ok<*SAGROW>
     currentDirection(currentDirection == 5) = 1;
@@ -72,109 +80,92 @@ day22puzzle2result = sum(currentPosition .* [1000 4]) + ...
     facingsResult(currentDirection) %#ok<NOPTS>
 
 
-function [position, direction] = unwrapTheMap(map, position, horizontal, positiveDirection)
-sizeDim = size(map,1)/3;
+function [newPosition, direction] = unwrapTheMap(map, position, ...
+    horizontal, positiveDirection)
+sizeDim = sqrt(nnz(map ~= ' ') / 6);
+newPosition = [0 0];
 
-switch horizontal
-    case 1 % horiz
-        section = ceil(position(1)/sizeDim);
-        switch positiveDirection
-            case 1 % R
-                switch section
-                    case 1 % 1c to 6b flipped
-                        exitPoint = position(1);
-                        entryPoint = 3 * sizeDim - exitPoint + 1;
-                        position = [entryPoint 4 * sizeDim];
-                        direction = 4;
-                    case 2 % 4a to 6c flipped
-                        exitPoint = position(1) - sizeDim;
-                        entryPoint = 4 * sizeDim - exitPoint + 1;
-                        position = [2 * sizeDim + 1 entryPoint];
-                        direction = 3;
-                    case 3 % 6b to 1c flipped
-                        exitPoint = position(1) - 2 * sizeDim;
-                        entryPoint = sizeDim - exitPoint + 1;
-                        position = [entryPoint 3 * sizeDim];
-                        direction = 4;
-                end
-            case 0 % L
-                switch section
-                    case 1 % 1a to 3a flipped
-                        1
-                    case 2 % 2b to 6a flipped
-                        exitPoint = position(1) - sizeDim;
-                        entryPoint = 4 * sizeDim - exitPoint + 1;
-                        position = [3 * sizeDim entryPoint];
-                        direction = 1;
-                    case 3 % 5a to 3b flipped
-                        exitPoint = position(1) - 2 * sizeDim;
-                        entryPoint = 2 * sizeDim - exitPoint + 1;
-                        position = [2 * sizeDim entryPoint];
-                        direction = 1;
-                end
-        end
-    case 0 % verti
-        section = ceil(position(2)/sizeDim);
-        switch positiveDirection
-            case 1 % D
-                switch section
-                    case 1 % 2c to 5b flipped
-                        exitPoint = position(2);
-                        entryPoint = 3 * sizeDim - exitPoint + 1;
-                        position = [3 * sizeDim entryPoint];
-                        direction = 1;
-                    case 2 % 3b to 5a flipped
-                        exitPoint = position(2) - sizeDim;
-                        entryPoint = 3 * sizeDim - exitPoint + 1;
-                        position = [entryPoint 2 * sizeDim + 1];
-                        direction = 2;
-                    case 3 % 5b to 2c flipped
-                        exitPoint = position(2) - 2 * sizeDim;
-                        entryPoint = sizeDim - exitPoint + 1;
-                        position = [2 * sizeDim entryPoint];
-                        direction = 1;
-                    case 4 % 6a to 2b flipped
-                        1
-                end
-            case 0 % U
-                switch section
-                    case 1 % 2a to 1a flipped
-                        exitPoint = position(2);
-                        entryPoint = exitPoint;
-                        position = [entryPoint 2 * sizeDim + 1];
-                        direction = 3;
-                    case 2 % 3a to 1a flipped
-                        exitPoint = position(2) - sizeDim;
-                        entryPoint = exitPoint;
-                        position = [entryPoint 2 * sizeDim + 1];
-                        direction = 2;
-                    case 3 % 1b to 2a flipped
-                        exitPoint = position(2) - 2 * sizeDim;
-                        entryPoint = sizeDim - exitPoint + 1;
-                        position = [sizeDim + 1 entryPoint];
-                        direction = 3;
-                    case 4 % 6c to 4a flipped
-                        1
-                end
-        end
+if sizeDim == 4
+    % make edge map - I could automate this...
+    from = ["1a", "3a", "6a", "1b", "2c", "3c", "2d"];
+    to   = ["2a", "1d", "4b", "6b", "5c", "5d", "6c"];
+    edgeMap = dictionary([from to], [to from]);
+else
+    % make edge map - I could automate this...
+    from = ["3d", "1d", "2c", "2b", "5c", "1a", "2a"];
+    to   = ["4a", "4d", "3b", "5b", "6b", "6d", "6c"];
+    edgeMap = dictionary([from to], [to from]);
 end
-%
-% if horizontal == 1
-%     currentLine = map(position(1),:);
+
+% make mini map based on map
+miniMap = flipud(rot90(map(1:sizeDim:end,1:sizeDim:end)));
+miniMap(miniMap ~= ' ') = '123456';
+miniMap = miniMap';
+
+% find origin in the mini-map
+if positiveDirection
+    directionToPrior = -1;
+else
+    directionToPrior = 1;
+end
+if horizontal
+    priorPosition = [position(1) position(2) + directionToPrior];
+else
+    priorPosition = [position(1) + directionToPrior position(2)];
+end
+originSqCoords = ceil(priorPosition / sizeDim);
+originSquare = string(miniMap(originSqCoords(1), originSqCoords(2)));
+
+% append direction to origin
+if all([horizontal positiveDirection] == [0 0])
+    originSquare = originSquare + "a";
+elseif all([horizontal positiveDirection] == [0 1])
+    originSquare = originSquare + "c";
+elseif all([horizontal positiveDirection] == [1 0])
+    originSquare = originSquare + "d";
+elseif all([horizontal positiveDirection] == [1 1])
+    originSquare = originSquare + "b";
+end
+
+% find exit
+switch originSquare.extract(2)
+    case "a"
+        exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
+    case "b"
+        exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
+    case "c"
+        exitPoint = originSqCoords(2) * sizeDim - position(2) + 1;
+    case "d"
+        exitPoint = originSqCoords(1) * sizeDim - position(1) + 1;
+end
+% if originSquare.extract(2) == "b" | originSquare.extract(2) == "d"
+%     
 % else
-%     currentLine = map(:,position(2));
 % end
-%
-% posIdx = 1;
-% whichEnd = 'first';
-%
-% if horizontal == 1
-%     posIdx = 2;
-% end
-%
-% if positiveDirection == 0
-%     whichEnd = 'last';
-% end
-%
-% position(posIdx) = find(currentLine ~= ' ',1,whichEnd);
+
+% find entry
+finalSquare = edgeMap(originSquare);
+[r,c] = find(miniMap == char(finalSquare.extract(1)));
+finalSqCoords = [r c];
+switch finalSquare.extract(2)
+    case "a"
+        newPosition(1) = (finalSqCoords(1) - 1) * sizeDim + 1;
+        newPosition(2) = finalSqCoords(2) * sizeDim - exitPoint + 1;
+        direction = 3;
+    case "b"
+        newPosition(1) = finalSqCoords(1) * sizeDim - exitPoint + 1;
+        newPosition(2) = finalSqCoords(2) * sizeDim;
+        direction = 4;
+    case "c"
+        newPosition(1) = finalSqCoords(1) * sizeDim;
+        newPosition(2) = (finalSqCoords(2) - 1) * sizeDim + exitPoint;
+        direction = 1;
+    case "d"
+        newPosition(1) = (finalSqCoords(1) - 1) * sizeDim + exitPoint;
+        newPosition(2) = (finalSqCoords(2) - 1) * sizeDim + 1;
+        direction = 2;
 end
+
+end
+
+% U R D L
