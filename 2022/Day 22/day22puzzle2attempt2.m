@@ -72,8 +72,9 @@ day22puzzle2result = sum(currentPosition .* [1000 4]) + ...
     facingsResult(currentDirection) %#ok<NOPTS>
 
 
-function [position, direction] = unwrapTheMap(map, position, horizontal, positiveDirection)
+function [newPosition, direction] = unwrapTheMap(map, position, horizontal, positiveDirection)
 sizeDim = size(map,1)/3;
+newPosition = [0 0];
 
 % make edge map - I could automate this...
 from = ["1a", "3a", "6a", "1b", "2c", "3c", "2d"];
@@ -115,6 +116,29 @@ if originSquare.extract(2) == "b" | originSquare.extract(2) == "d"
         exitPoint = position(1) - (originSqCoords(1) - 1) * sizeDim;
 else
         exitPoint = position(2) - (originSqCoords(2) - 1) * sizeDim;
+end
+
+% find entry
+finalSquare = edgeMap(originSquare);
+[r,c] = find(miniMap == char(finalSquare.extract(1)));
+finalSqCoords = [r c];
+switch finalSquare.extract(2)
+    case "a"
+        newPosition(1) = finalSqCoords(1) - 1) * sizeDim + 1;
+        newPosition(2) = finalSqCoords(2) - 1) * sizeDim + exitPoint
+        direction = 2;
+    case "b"
+        newPosition(1)
+        newPosition(2)
+        direction = 3;
+    case "c"
+        newPosition(1)
+        newPosition(2)
+        direction = 1;
+    case "d"
+        newPosition(1)
+        newPosition(2)
+        direction = 4;
 end
 
 end
