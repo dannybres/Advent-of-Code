@@ -1,4 +1,5 @@
-%% day2puzzle1 - Daniel Breslan - Advent Of Code 2019
+%% day5puzzle1 - Daniel Breslan - Advent Of Code 2019
+% Instruction(instriction pointer) > opcode and 3 parameter
 data = readlines("input.txt").split(",").double();
 data(2:3) = [12 2];
 
