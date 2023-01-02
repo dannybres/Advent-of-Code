@@ -1,5 +1,4 @@
 %% day6puzzle2 - Daniel Breslan - Advent Of Code 2019
-data = readlines("inputDemo.txt")
-
-
-day6puzzle2result = 0;
+day6puzzle2result = numel(shortestpath(graph(table(...
+    readlines("input.txt").split(")"),'VariableNames',{'EndNodes'})),...
+    "YOU","SAN")) - 3 %#ok<NOPTS> 
