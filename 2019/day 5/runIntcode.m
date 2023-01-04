@@ -4,8 +4,9 @@ if nargin < 3
     numOutputs = Inf;
     idx = 1;
 end
-
-
+if class(data) == "double"
+    data = dictionary(1:numel(data),data');
+end
 
 terminated = false;
 inputIdx = 1;
@@ -18,63 +19,68 @@ while 1
         terminated = true;
         break
     end
-
-    parameters = data(idx+(1:numel(modes)));
-    if max(parameters(0 == modes)+1) > numel(data)
-        data(max(parameters(0 == modes)+1)) = 0;
+    parameters = zeros(1,numel(modes));
+    for paraIdx = 1:numel(parameters)
+        thisParameter = data(idx + paraIdx);
+        switch modes(paraIdx)
+            case 0 % position
+                memoryAddress = thisParameter + 1;
+                if ~isKey(data, memoryAddress)
+                    data(memoryAddress) = 0;
+                end
+                parameters(paraIdx) = data(memoryAddress);
+            case 1 % imediate
+                parameters(paraIdx) = thisParameter;
+            case 2 % relative
+                memoryAddress = relativeBase + thisParameter + 1;
+                if ~isKey(data, memoryAddress)
+                    data(memoryAddress) = 0;
+                end
+                parameters(paraIdx) = data(memoryAddress);
+        end
+        if (opcode == 1 || opcode == 2 || opcode == 3 || opcode == 7 || opcode == 8) && paraIdx == numel(parameters)
+            parameters(paraIdx) = memoryAddress;
+        end
     end
-    parameters(0 == modes) = data(parameters(0 == modes)+1);
-
-    if sum(modes == 2) > 0
-        parameters(2 == modes) = data(parameters(2 == modes) + ...
-            relativeBase + 1);
-    end
-%     disp("idx:" + idx + ", opcode:" + opcode + ", modes:" + string(modes).join(",") ...
-%         + ", parameters:" + string(parameters).join(",") + ", relativeBase:" + string(relativeBase).join(","))
-
     autoIncrement = true;
-
     switch opcode
-        case 1
-            data(1 + data(idx+3)) = sum(parameters(1:2));
-        case 2
-            data(1 + data(idx+3)) = prod(parameters(1:2));
-        case 3 % input and saves it
-            data(1 + data(idx+1)) = input(inputIdx);
+        case 1 % adds
+            data(parameters(end)) = sum(parameters(1:2));
+        case 2 % product
+            data(parameters(end)) = prod(parameters(1:2));
+        case 3 % input
+            data(parameters(end)) = input(inputIdx);
             inputIdx = inputIdx + 1;
-        case 4 % outputs the value
-%             disp("outputoutputoutputoutputoutputoutputoutput is " + parameters)
+        case 4 % output
             if isnan(outputs)
                 outputs = parameters;
             else
-                outputs = [outputs; parameters]; %#ok<AGROW> 
+                outputs = [outputs; parameters]; %#ok<AGROW>
             end
             if numel(outputs) == numOutputs
                 idx = idx + numel(modes) + 1;
                 return
             end
-        case 5
+        case 5 % jump if true
             if parameters(1) ~= 0
                 idx = parameters(2)+1;
                 autoIncrement = false;
             end
-        case 6
+        case 6 % jump-if-false
             if parameters(1) == 0
                 idx = parameters(2)+1;
                 autoIncrement = false;
             end
-        case 7
-            data(1 + parameters(3)) = parameters(1) < parameters(2);
-        case 8
-            data(1 + parameters(3)) = parameters(1) == parameters(2);
-        case 9
+        case 7 % less than
+            data(parameters(end))  = parameters(1) < parameters(2);
+        case 8 % equal
+            data(parameters(end))  = parameters(1) == parameters(2);
+        case 9 % relativeBase change
             relativeBase = relativeBase + parameters;
     end
-
     if autoIncrement
         idx = idx + numel(modes) + 1;
     end
-
 end
 end
 
