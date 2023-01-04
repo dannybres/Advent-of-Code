@@ -36,4 +36,6 @@ for optIdx = 1:height(options)
     end
 end
 
-day7puzzle2result = maxThrust %#ok<NOPTS> 
+day7puzzle2result = maxThrust; %#ok<NOPTS> 
+
+isIntComputerWorking = day7puzzle2result == 63103596
