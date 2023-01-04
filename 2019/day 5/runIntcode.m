@@ -5,7 +5,7 @@ if nargin < 3
     idx = 1;
 end
 
-data = dictionary(1:numel(data),data');
+
 
 terminated = false;
 inputIdx = 1;
@@ -20,20 +20,17 @@ while 1
     end
 
     parameters = data(idx+(1:numel(modes)));
-%     for idx = 1:numel(parameters)
-%     	if ~isKey(data,parameters(idx))
-%             data(parameters(idx)) = 0;
-%         end
-%     end
+    if max(parameters(0 == modes)+1) > numel(data)
+        data(max(parameters(0 == modes)+1)) = 0;
+    end
     parameters(0 == modes) = data(parameters(0 == modes)+1);
 
     if sum(modes == 2) > 0
-
         parameters(2 == modes) = data(parameters(2 == modes) + ...
             relativeBase + 1);
     end
-    disp("idx:" + idx + ", opcode:" + opcode + ", modes:" + string(modes).join(",") ...
-        + ", parameters:" + string(parameters).join(",") + ", relativeBase:" + string(relativeBase).join(","))
+%     disp("idx:" + idx + ", opcode:" + opcode + ", modes:" + string(modes).join(",") ...
+%         + ", parameters:" + string(parameters).join(",") + ", relativeBase:" + string(relativeBase).join(","))
 
     autoIncrement = true;
 
@@ -46,11 +43,11 @@ while 1
             data(1 + data(idx+1)) = input(inputIdx);
             inputIdx = inputIdx + 1;
         case 4 % outputs the value
-            disp("outputoutputoutputoutputoutputoutputoutput is " + parameters)
+%             disp("outputoutputoutputoutputoutputoutputoutput is " + parameters)
             if isnan(outputs)
                 outputs = parameters;
             else
-                outputs = [outputs; parameters]; %#ok<AGROW>
+                outputs = [outputs; parameters]; %#ok<AGROW> 
             end
             if numel(outputs) == numOutputs
                 idx = idx + numel(modes) + 1;
