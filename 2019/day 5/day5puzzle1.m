@@ -1,4 +1,5 @@
 %% day5puzzle1 - Daniel Breslan - Advent Of Code 2019
+addpath("../intCodeComputer/")
 data = readlines("input.txt").split(",").double();
-outputs = runIntcode(data,1); 
+outputs = processIntCodeComputer(data,1); 
 day5puzzle1results = outputs(end) %#ok<NOPTS> 

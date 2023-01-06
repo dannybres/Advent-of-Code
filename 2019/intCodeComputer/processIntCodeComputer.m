@@ -1,18 +1,16 @@
-function [outputs, data, idx, terminated] = processIntCodeComputer(data,input,...
-    numOutputs,idx)
+function [outputs, data, idx, terminated, relativeBase] = processIntCodeComputer(data,input,...
+    numOutputs,idx, relativeBase)
 if nargin < 3
     numOutputs = Inf;
     idx = 0;
+    relativeBase = 0;
 end
-
 if class(data) == "double"
     data = dictionary(0:numel(data)-1,data');
 end
 
-idx = 0;
 outputs = nan;
 inputIdx = 1;
-% relativeBase = 0;
 terminated = false;
 
 while 1
@@ -30,10 +28,22 @@ while 1
                 if any(idxOfMemorySavePosition == paraIdx)
                     parameters(paraIdx) = thisParameter;
                 else
+                    if ~isKey(data,thisParameter)
+                        data(thisParameter) = 0;
+                    end
                     parameters(paraIdx) = data(thisParameter);
                 end
             case 1 % immediate
                 parameters(paraIdx) = thisParameter;
+            case 2 %relative
+                if any(idxOfMemorySavePosition == paraIdx)
+                    parameters(paraIdx) = thisParameter + relativeBase;
+                else
+                    if ~isKey(data,thisParameter + relativeBase)
+                        data(thisParameter + relativeBase) = 0;
+                    end
+                    parameters(paraIdx) = data(thisParameter + relativeBase);
+                end
         end
     end
     switch opcode
@@ -50,6 +60,10 @@ while 1
             else
                 outputs = [outputs; parameters]; %#ok<AGROW>
             end
+            if numel(outputs) == numOutputs
+                idx = idx + numel(modes) + 1;
+                return
+            end
         case 5 % Jump if true
             if parameters(1) ~= 0
                 idx = parameters(2);
@@ -64,6 +78,8 @@ while 1
             data(parameters(3))  = parameters(1) < parameters(2);
         case 8 % equals
             data(parameters(3))  = parameters(1) == parameters(2);
+        case 9
+            relativeBase = relativeBase + parameters;
     end
     if autoIncrement
         idx = idx + numel(modes) + 1;
@@ -75,7 +91,7 @@ function [opcode, modes, idxOfMemorySavePosition] = decryptInstruction(opcode)
 opcodeString = string(opcode);
 opcode = opcodeString.extractAfter(max(0,opcodeString.strlength-2)).double;
 numberOfParametersOptions = [3 3 1 1 2 2 3 3 1];
-idxOfMemorySavePositionOptions = [3 3 1 nan nan nan 3 3];
+idxOfMemorySavePositionOptions = [3 3 1 nan nan nan 3 3 nan];
 numberOfParameters = 0;
 idxOfMemorySavePosition = 0;
 if opcode < 10

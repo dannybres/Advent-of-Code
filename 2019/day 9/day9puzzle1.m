@@ -1,5 +1,5 @@
 %% day9puzzle1 - Daniel Breslan - Advent Of Code 2019
-addpath('../day 5/')
+addpath("../intCodeComputer/")
 data = readlines("input.txt").split(",").double();
 
-day9puzzle1result = runIntcode(data, 1)
+day9puzzle1result = processIntCodeComputer(data, 1)

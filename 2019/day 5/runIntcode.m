@@ -2,10 +2,10 @@ function [outputs, data, idx, terminated] = runIntcode(data,input,...
     numOutputs,idx)
 if nargin < 3
     numOutputs = Inf;
-    idx = 1;
+    idx = 0;
 end
 if class(data) == "double"
-    data = dictionary(1:numel(data),data');
+    data = dictionary(0:numel(data)-1,data');
 end
 
 terminated = false;
@@ -24,24 +24,36 @@ while 1
         thisParameter = data(idx + paraIdx);
         switch modes(paraIdx)
             case 0 % position
-                memoryAddress = thisParameter + 1;
+                memoryAddress = thisParameter;
                 if ~isKey(data, memoryAddress)
                     data(memoryAddress) = 0;
                 end
-                parameters(paraIdx) = data(memoryAddress);
+                if paraIdx == numel(parameters) && opcode ~= 4 && opcode ~= 9
+                    parameters(paraIdx) = memoryAddress;
+                else
+                    parameters(paraIdx) = data(memoryAddress);
+                end
             case 1 % imediate
                 parameters(paraIdx) = thisParameter;
             case 2 % relative
-                memoryAddress = relativeBase + thisParameter + 1;
+                memoryAddress = relativeBase + thisParameter;
+                if memoryAddress < 0
+                    error("negative memory address")
+                end
                 if ~isKey(data, memoryAddress)
                     data(memoryAddress) = 0;
                 end
-                parameters(paraIdx) = data(memoryAddress);
+                if paraIdx == numel(parameters) && opcode ~= 4 && opcode ~= 9
+                    parameters(paraIdx) = memoryAddress;
+                else
+                    parameters(paraIdx) = data(memoryAddress);
+                end
         end
-        if (opcode == 1 || opcode == 2 || opcode == 3 || opcode == 7 || opcode == 8) && paraIdx == numel(parameters)
-            parameters(paraIdx) = memoryAddress;
-        end
+%         if (opcode == 1 || opcode == 2 || opcode == 3 || opcode == 7 || opcode == 8) && paraIdx == numel(parameters) && modes(paraIdx) ~= 1
+%             parameters(paraIdx) = memoryAddress;
+%         end
     end
+
     autoIncrement = true;
     switch opcode
         case 1 % adds
@@ -63,12 +75,12 @@ while 1
             end
         case 5 % jump if true
             if parameters(1) ~= 0
-                idx = parameters(2)+1;
+                idx = parameters(end);
                 autoIncrement = false;
             end
         case 6 % jump-if-false
             if parameters(1) == 0
-                idx = parameters(2)+1;
+                idx = parameters(end);
                 autoIncrement = false;
             end
         case 7 % less than
