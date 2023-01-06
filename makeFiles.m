@@ -10,7 +10,7 @@ for idx = 1:25
         writematrix(comm',fn,QuoteStrings=false)
         movefile(fn,fn.replace(".txt",".m"))
     end
-    writematrix("",fullfile(y,"Day " + sprintf("%02i",idx),"inputDemo.txt"))
-    writematrix("",fullfile(y,"Day " + sprintf("%02i",idx),"input.txt"))
+    writelines("",fullfile(y,"Day " + sprintf("%02i",idx),"inputDemo.txt"))
+    writelines("",fullfile(y,"Day " + sprintf("%02i",idx),"input.txt"))
 end
 end
