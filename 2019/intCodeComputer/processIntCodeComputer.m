@@ -52,6 +52,10 @@ while 1
         case 2 % prod
             data(parameters(3)) = prod(parameters(1:2));
         case 3 % input
+            if inputIdx > numel(input)
+                idx = idx + numel(modes) + 1;
+                return
+            end
             data(parameters) = input(inputIdx);
             inputIdx = inputIdx + 1;
         case 4 % output

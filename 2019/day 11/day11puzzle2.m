@@ -41,7 +41,6 @@ while 1
     map = [map; [newLocation newLocationColour]]; %#ok<AGROW> 
 
 end
-map = map;
 map = flipud(map);
 [~, w] = unique(map(:,1:2),"rows");
 
