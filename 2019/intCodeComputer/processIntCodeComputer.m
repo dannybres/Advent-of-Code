@@ -1,8 +1,8 @@
-function [outputs, data, idx, terminated, relativeBase] = processIntCodeComputer(data,input,...
-    numOutputs,idx, relativeBase)
+function [outputs, data, nextMemoryAddress, terminated, relativeBase] = processIntCodeComputer(data,input,...
+    numOutputs,nextMemoryAddress, relativeBase)
 if nargin < 3
     numOutputs = Inf;
-    idx = 0;
+    nextMemoryAddress = 0;
     relativeBase = 0;
 end
 if class(data) == "double"
@@ -15,14 +15,14 @@ terminated = false;
 
 while 1
     autoIncrement = true;
-    [opcode, modes, idxOfMemorySavePosition] = decryptInstruction(data(idx));
+    [opcode, modes, idxOfMemorySavePosition] = decryptInstruction(data(nextMemoryAddress));
     if opcode == 99
         terminated = true;
         break
     end
     parameters = zeros(1,numel(modes));
     for paraIdx = 1:numel(parameters)
-        thisParameter = data(idx + paraIdx);
+        thisParameter = data(nextMemoryAddress + paraIdx);
         switch modes(paraIdx)
             case 0 % position
                 if any(idxOfMemorySavePosition == paraIdx)
@@ -53,7 +53,7 @@ while 1
             data(parameters(3)) = prod(parameters(1:2));
         case 3 % input
             if inputIdx > numel(input)
-                idx = idx + numel(modes) + 1;
+                nextMemoryAddress = nextMemoryAddress + numel(modes) + 1;
                 return
             end
             data(parameters) = input(inputIdx);
@@ -65,17 +65,17 @@ while 1
                 outputs = [outputs; parameters]; %#ok<AGROW>
             end
             if numel(outputs) == numOutputs
-                idx = idx + numel(modes) + 1;
+                nextMemoryAddress = nextMemoryAddress + numel(modes) + 1;
                 return
             end
         case 5 % Jump if true
             if parameters(1) ~= 0
-                idx = parameters(2);
+                nextMemoryAddress = parameters(2);
                 autoIncrement = false;
             end
         case 6 % Jump if false
             if parameters(1) == 0
-                idx = parameters(2);
+                nextMemoryAddress = parameters(2);
                 autoIncrement = false;
             end
         case 7 % Less than
@@ -86,7 +86,7 @@ while 1
             relativeBase = relativeBase + parameters;
     end
     if autoIncrement
-        idx = idx + numel(modes) + 1;
+        nextMemoryAddress = nextMemoryAddress + numel(modes) + 1;
     end
 end
 end
