@@ -40,7 +40,7 @@ def distance(x1,y1,x2,y2,length,field):
     if x1 == x2 and y1 == y2: return length
     field[x1][y1] = "▒"
     return max([distance(x1+d[0], y1+d[1], x2, y2, length+1, field) for d in ((-1, 0), (1,0), (0,-1), (0,1))])
-with open("input1.txt") as file:
+with open("input.txt") as file:
     program = [int(x) for x in file.readline().split(",")]+[0]*10000
     field, start = [[" "]*41 for _ in range(41)], [21,21]
     [run(program.copy(), x, start, 0, field) for x in range(1,5)]
