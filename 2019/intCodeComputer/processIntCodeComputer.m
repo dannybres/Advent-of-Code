@@ -1,4 +1,4 @@
-function [outputs, data, nextMemoryAddress, terminated, relativeBase] = processIntCodeComputer(data,input,...
+function [outputs, data, nextMemoryAddress, terminated, relativeBase] = processIntCodeComputer(data,inputs,...
     numOutputs,nextMemoryAddress, relativeBase)
 if nargin < 3
     numOutputs = Inf;
@@ -52,11 +52,14 @@ while 1
         case 2 % prod
             data(parameters(3)) = prod(parameters(1:2));
         case 3 % input
-            if inputIdx > numel(input)
-                nextMemoryAddress = nextMemoryAddress + numel(modes) + 1;
+            if ~exist('inputs','var')
                 return
             end
-            data(parameters) = input(inputIdx);
+            if inputIdx > numel(inputs)
+%                 nextMemoryAddress = nextMemoryAddress + numel(modes) + 1;
+                return
+            end
+            data(parameters) = inputs(inputIdx);
             inputIdx = inputIdx + 1;
         case 4 % output
             if isnan(outputs)
