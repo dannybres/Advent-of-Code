@@ -10,7 +10,7 @@ searchPhrase = data(idx,:); % get one to search from
 poolToSearch = data; % get rest by clone and remove the searchPhase
 poolToSearch(idx,:) = [];
 
-results = searchPhrase == pagetranspose(permute(poolToSearch,[3,2,1]));
+results = searchPhrase == permute(poolToSearch,[2,3,1]);
 % make the pool columns (1 per page)
 ind = sub2ind(size(results), ...
     repmat(1:numel(searchPhrase),1,size(results,3)), ...
