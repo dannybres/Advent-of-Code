@@ -22,7 +22,7 @@ for aidx = 1:numel(afterLine)
     widthOfThem = min(a,w-a);
     lhs = m(:,a-widthOfThem+1:a);
     rhs = fliplr(m(:,a+1:a+widthOfThem));
-    if sum((lhs == rhs) == false,'all') == 1
+    if sum(lhs ~= rhs,'all') == 1
         return
     end
 end
