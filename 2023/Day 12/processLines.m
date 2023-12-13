@@ -1,4 +1,9 @@
 function n = processLines(springs,counts)
+n = 0;
+if sum(any(springs == ('?#')')) < sum(counts)
+    return
+end
+
 persistent d
 if isempty(d)
     d = dictionary('1',0);
@@ -8,12 +13,16 @@ if isKey(d,dk)
     n = d(dk);
     return
 end
-n = 0;
 if numel(counts) == 1
     subStr = springs;
 else
     subStr = springs(1:end - sum(counts(2:end)) - (numel(counts) - 2));
 end
+
+if max(sum(cumsum(subStr == '.')' == 1:sum(subStr == '.')) - 1) < max(counts)
+    return
+end
+
 placesItCanBe = any(subStr == ('?#')');
 placesItCanBreak = any(subStr == ('?.')');
 if ~sum(placesItCanBe)
