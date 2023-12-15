@@ -1,6 +1,4 @@
 %% day14puzzle1 - Daniel Breslan - Advent Of Code 2023
-tic
-% profile on
 m = double(char(readlines("input.txt")));
 m(m==79) = 1;
 m(m==46) = 0;
@@ -19,5 +17,3 @@ for idx = 1:tn % loop for test
 end
 period = tn - find(r(end) == r(1:end-2),1,"last"); % establish period
 day14puzzle2result = r(tn-period + mod(n-tn,period)) %#ok<NOPTS> % N load
-% profile viewer
-toc
