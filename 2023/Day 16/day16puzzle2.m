@@ -1,4 +1,5 @@
 %% day16puzzle2 - Daniel Breslan - Advent Of Code 2023
+profile on
 m = padarray(double(char(readlines("input.txt"))),[1 1],double('.'));
 n = length(m) - 1;
 sl = [[(2:n)' repmat([1 2],n-1,1)];...
@@ -12,7 +13,7 @@ for idx = 1:height(sl)
     state = zeros(size(m));
     dir = [-1 0;0 1;1 0;0 -1];
     stateLU = [1 2 4 8];
-    while height(loc)
+    while loc
         l = loc(1,:);
         if bitand(state(l(1),l(2)),stateLU(l(3)))
             loc(1,:) = [];
@@ -67,6 +68,4 @@ r(idx) = nnz(state);
 end
 
 day16puzzle2result = max(r) %#ok<NOPTS>
-
-
-
+profile viewer
