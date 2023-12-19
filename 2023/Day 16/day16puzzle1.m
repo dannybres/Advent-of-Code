@@ -1,19 +1,22 @@
 %% day16puzzle1 - Daniel Breslan - Advent Of Code 2023
-m = padarray(double(char(readlines("inputDemo.txt"))),[1 1],double('.'));
-state = zeros(size(m));
-
-loc = [2 1 2];
+m = double(char(readlines("input.txt")));
 dir = [-1 0;0 1;1 0;0 -1];
 
-stateLU = [1 2 4 8];
-
+state = false([size(m),4]);
+loc = [1 1 2];
+switch m(loc(1),loc(2))
+    case '/'
+        loc(3) = loc(3)-1;
+    case '\'
+        loc(3) = loc(3)+1;
+end
 while height(loc)
     l = loc(1,:);
-    if bitand(state(l(1),l(2)),stateLU(l(3)))
+    if state(l(1),l(2),l(3))
         loc(1,:) = [];
         continue
     end
-    state(l(1),l(2)) = bitor(state(l(1),l(2)),stateLU(l(3)));
+    state(l(1),l(2),l(3)) = true;
     newLoc = l(1:2) + dir(l(3),:);
     % check if dead
     if any(newLoc < 1) ||  newLoc(1) > size(m,1) || newLoc(2) > size(m,2)
@@ -59,9 +62,9 @@ while height(loc)
         loc(1,3) = 1;
     end
 end
-m = m(2:end-1,2:end-1);
-state = state(2:end-1,2:end-1);
-o = repmat('.',size(m,1),size(m,2))
-o(state ~= 0) = '#'
+state = sum(state,3);
+% state = state(2:end-1,2:end-1);
+o = repmat('.',size(m,1),size(m,2));
+o(state ~= 0) = '#' %#ok<*NOPTS>
 
 day16puzzle1result = nnz(state)
