@@ -15,9 +15,17 @@ for idx = 1:height(sl)
     loc = sl(idx,:);
     switch m(loc(1),loc(2))
         case '/'
-            loc(3) = loc(3)-1;
+            dirCh = 1;
+            if loc(3) == 4 || loc(3) == 2 % turn left
+                dirCh = -1;
+            end
+            loc(3) = loc(3)+dirCh;
         case '\'
-            loc(3) = loc(3)+1;
+            dirCh = 1;
+            if loc(3) == 1 || loc(3) == 3 % turn left
+                dirCh = -1;
+            end
+            loc(3) = loc(3)+dirCh;
     end
     if loc(1,3) == 0
         loc(1,3) = 4;
@@ -34,7 +42,9 @@ for idx = 1:height(sl)
         state(l(1),l(2),l(3)) = true;
         newLoc = l(1:2) + dir(l(3),:);
         % check if dead
-        if any(newLoc < 1) ||  newLoc(1) > size(m,1) || newLoc(2) > size(m,2)
+        if any(newLoc < 1) || ...
+                newLoc(1) > size(m,1) || ...
+                newLoc(2) > size(m,2)
             loc(1,:) = [];
             continue
         end
