@@ -6,20 +6,22 @@ maxN = 10;
 seen = false(size(map,1),size(map,2),3,3,maxN);
 q = PQ2(12e3);
 q.push([0 1 1 0 0 0],0);
-% next = 2;
+target = size(map);
 while true
     o = q.pop;
-    if rand() < 0.005
-        o(1)
-    end
-
     hl = o(1); r = o(2); c = o(3); dr = o(4); dc = o(5); n = o(6);
-    if r == size(map,1) && c == size(map,2) && n >= 4 % found end
+    if r == target(1) && c == target(2) && n >= 4 % found end
         break
     end
     if n ~= 0
-        if seen(r,c,dr+2,dr+2,n) % seen before (from that direction)
+        sPerN = seen(r,c,dr+2,dr+2,:);
+        if sPerN(n)  % seen before (from that direction)
             continue
+        end
+        if n > 3 && any(sPerN(4:end))
+            if n > find(sPerN(4:end),1) + 3
+            continue
+            end
         end
         seen(r,c,dr+2,dr+2,n) = true;
     end
@@ -45,10 +47,4 @@ while true
     end
 end
 day17puzzle2result = hl %#ok<NOPTS>
-
-
-
-
-
-
-
+toc
