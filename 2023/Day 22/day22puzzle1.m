@@ -1,6 +1,8 @@
 %% day22puzzle1 - Daniel Breslan - Advent Of Code 2023\
 clc
 data = readlines("input.txt").extract(digitsPattern).double;
+[~,idx] = sort(data(:,3));
+data = data(idx,:);
 data = reshape(data,[],3,2);
 
 if ~exist("raisedBlocks","var")
@@ -30,8 +32,8 @@ end
 %%
 r = false(height(iSupport),1);
 for idx = 1:numel(iSupport)
-    numberOfSups = cellfun(@numel,supportMe(iSupport{idx}))
-    r(idx) = all(numberOfSups > 1)
+    numberOfSups = cellfun(@numel,supportMe(iSupport{idx}));
+    r(idx) = all(numberOfSups > 1);
 end
 sum(r)
 
