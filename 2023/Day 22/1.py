@@ -31,3 +31,4 @@ for i in range(len(bricks)):
 
 print(total)
 print(bricks)
+print(k_supports_v)
