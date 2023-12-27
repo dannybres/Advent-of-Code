@@ -1,5 +1,5 @@
 %% day23puzzle1 - Daniel Breslan - Advent Of Code 2023
-data = char(readlines("input .txt"));
+data = char(readlines("input.txt"));
 
 startPt = [1 find(data(1,:) == '.')];
 step(data,startPt(1),startPt(2),false(size(data)))

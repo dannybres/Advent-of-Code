@@ -1,72 +1,56 @@
 %% day23puzzle2 - Daniel Breslan - Advent Of Code 2023
+profile on
 map = char(readlines("input.txt"));
-map(map == '<' | map == '>' | map == 'v' | map == '^') = '.';
+graphData = struct;
 startPt = [1 find(map(1,:) == '.')];
-seen = false(size(map));
-seen(map == '#') = true;
-day23puzzle2result = step(map,startPt(1),startPt(2),seen) ...
-    - sum(map == '#','all')
-
-function out = step(map,x,y,seen)
-out = 0;
 endPt = [size(map,1),find(map(end,:) == '.')];
-o = bwconncomp(~seen);
-if numel(o.PixelIdxList) > 1
-    for idx = 1:numel(o.PixelIdxList)
-        if ~ all(all(any(o.PixelIdxList{idx} == ...
-                [size(map,1) * (size(map,2)-1), ...
-                sub2ind(size(map),x,y)])))
-            return
+target = compose("r%ic%i",endPt(1),endPt(2));
+mc = zeros(3); mc(2:2:end) = 1;
+con = conv2(map ~= '#',mc,"same");
+[r,c] = find(con > 2 & map == '.');
+
+junctions = [startPt;endPt;[r c]];
+
+
+for idx = 1:size(junctions,1)
+    junction = junctions(idx,:);
+    pathStarts = junction(1:2) + [0 1;1 0;-1 0;0 -1];
+    pathStarts = pathStarts(~(any(pathStarts < 1,2) |...
+        any(pathStarts > size(map,1),2)),:);
+    pathStarts = pathStarts(...
+        map(sub2ind(size(map),pathStarts(:,1),pathStarts(:,2))) ~= '#',:);
+    for psi = 1:size(pathStarts,1)
+        [x,y,n] = dfsCompress(map,pathStarts(psi,1),pathStarts(psi,2), ...
+            junction(1),junction(2),1);
+        graphData.(compose("r%ic%i",junction(1),junction(2)) ...
+            ).(compose("r%ic%i",x,y)) = n;
+    end
+end
+seen = "";
+day23puzzle2result = longHike(...
+    compose("r%ic%i",junctions(1),junctions(1,2)),graphData,target,seen) %#ok<NOPTS>
+profile viewer
+function m = longHike(junction,graphData,target,seen)
+    if junction == target
+        m = 0;
+        return
+    end
+    m = -Inf;
+    for next = string(fieldnames(graphData.(junction)))'
+        if all(next ~= seen)
+            m = max(m,longHike(next,graphData,target,[seen; junction]) + ...
+                graphData.(junction).(next));
         end
     end
 end
-if x == endPt(1) && y == endPt(2)
-    out = sum(seen,'all');
-    if rand() < 0.05
-        disp(compose("[%i,%i] with %i steps",x,y,sum(seen,'all')))
-    end
-    return
-end
-seen(x,y) = true;
-dir = [0 1; 0 -1;1 0;-1 0]; % R L D U
-if map(x,y) ~= '.'
-    switch map(x,y)
-        case '<'
-            dir = [0 -1];
-        case '>'
-            dir = [0 1];
-        case 'v'
-            dir = [1 0];
-        case '^'
-            dir = [-1 0];
-    end
-end
-for idx = 1:size(dir,1)
-    xx = x + dir(idx,1); yy = y + dir(idx,2);
-    if xx > 0 && yy > 0 && xx <= size(map,1) && yy <= size(map,1)
-        if map(xx,yy) ~='#' && ~seen(xx,yy)
-            if map(xx,yy) ~= '.'
-                switch map(xx,yy)
-                    case '<'
-                        if dir(idx,2) ~= -1
-                            continue
-                        end
-                    case '>'
-                        if dir(idx,2) ~= 1
-                            continue
-                        end
-                    case 'v'
-                        if dir(idx,1) ~= 1
-                            continue
-                        end
-                    case '^'
-                        if dir(idx,1) ~= -1
-                            continue
-                        end
-                end
-            end
-            out = max(out,step(map,xx,yy,seen));
-        end
-    end
+
+
+function [x,y,n] = dfsCompress(map,x,y,fx,fy,n)
+step = [x y] + [0 1;1 0;-1 0;0 -1];
+step(ismember(step,[fx,fy],"rows"),:) = [];
+step = step(~(any(step < 1,2) | any(step > size(map,1),2)),:);
+step = step(map(sub2ind(size(map),step(:,1),step(:,2))) ~= '#',:);
+if size(step,1) == 1
+    [x,y,n] = dfsCompress(map,step(1),step(2),x,y,n+1);
 end
 end
