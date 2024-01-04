@@ -1,19 +1,23 @@
-def find_divisors(number):
-    divisors = []
-    for i in range(1, number + 1):
-        if number % i == 0:
-            divisors.append(i)
-    return divisors
+import numpy as np 
 
-# Example usage:
-i = 1
-while True:
-    result = find_divisors(i)
-    r = sum([x*10 for x in result])
-    # print(r)
-    if r >= 33100000:
-        # print(i)
+target = 33100000
+
+house = [0 for a in range(int(target/10))]
+for elf, _ in enumerate(house):
+    for houseN in range(elf,len(house),elf+1):
+        house[houseN] += (elf + 1) * 10
+for i, v in enumerate(house):
+    if v >= target:
         break
-    i += 1
 
-print(i)
+print(i+1)
+
+house = [0 for a in range(int(target/10))]
+for elf, _ in enumerate(house):
+    for houseN in range(elf,min(51*(elf+1),len(house)),elf+1):
+        house[houseN] += (elf + 1) * 11
+for i, v in enumerate(house):
+    if v >= target:
+        break
+
+print(i+1)
