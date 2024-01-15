@@ -1,48 +1,12 @@
 lines = open("5.txt").read().splitlines()
-
 def isNice(phase):
-    vowelCount = 0
-    for v in ['a','e','i','o','u']:
-        vowelCount += phase.count(v)
-    phraseCount = 0
-    for v in ['ab','cd','pq','xy']:
-        phraseCount += phase.count(v)
-    consecutiveLetters = False
-    for i in range(len(phase)-1):
-        if phase[i] == phase[i+1]:
-            consecutiveLetters = True
-            break
-    return phraseCount == 0 and vowelCount >= 3 and consecutiveLetters
-
+    vowelCount = sum(1 for char in phase if char.lower() in 'aeiou')
+    phraseCount = sum(phase.count(x) for x in ['ab','cd','pq','xy'])
+    consecutiveLetters = sum(1 for i in range(len(phase)-1) if phase[i] == phase[i+1])
+    return not phraseCount and vowelCount >= 3 and consecutiveLetters
 def isNicer(phase):
-    pairOfPairs = False
-    for i in range(len(phase)-1):
-        if pairOfPairs:
-            break
-        for j in range(len(phase)-1):
-            if abs(i-j) < 2:
-                continue
-            if phase[i:i+2] == phase[j:j+2]:
-                pairOfPairs = True
-                break
-                
-    splitLetters = False
-    for i in range(len(phase)-2):
-        if phase[i] == phase[i+2]:
-            splitLetters = True
-            break
+    pairOfPairs = any(phase[i:i+2] == phase[j:j+2] for i in range(len(phase)-1) for j in range(len(phase)-1) if abs(i-j) >= 2)
+    splitLetters = any(phase[i] == phase[i+2] for i in range(len(phase)-2))
     return pairOfPairs and splitLetters
-
-# Part 1
-c = 0
-for line in lines:
-    if isNice(line):
-        c += 1
-print(c)
-
-# Part 2
-c = 0
-for line in lines:
-    if isNicer(line):
-        c += 1
-print(c)
+print(sum(1 for line in lines if isNice(line)))
+print(sum(1 for line in lines if isNicer(line)))

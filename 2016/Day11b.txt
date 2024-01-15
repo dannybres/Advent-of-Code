@@ -1,0 +1,4 @@
+An elerium generator.
+An elerium-compatible microchip.
+A dilithium generator.
+A dilithium-compatible microchip

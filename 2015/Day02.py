@@ -1,18 +1,13 @@
-line = open("2.txt").read().splitlines()
+lines = open("2.txt").read().splitlines()
 
-t = 0
-for p in line:
-    p = [int(x) for x in p.split("x")]
-    h = p[0]
-    w = p[1]
-    l = p[2]
-    t = t + 2*l*w + 2*w*h + 2*h*l + min(w*h,w*l,h*l)
-print(t)
+totalAreaOfPaper = 0
+for dimensions in lines:
+    height,width,length = map(int,dimensions.split("x"))
+    totalAreaOfPaper = totalAreaOfPaper + 2*length*width + 2*width*height + 2*height*length + min(width*height,width*length,height*length)
+print(totalAreaOfPaper)
 
-t = 0
-for p in line:
-    p = [int(x) for x in p.split("x")]
-    sorted_numbers = sorted(p)
-    two_min_values = sorted_numbers[:2]
-    t = t + 2 * sum(two_min_values) + p[0]*p[1]*p[2]
-print(t)
+totalLengthOfRibbon = 0
+for dimensions in lines:
+    dimensions = sorted([int(x) for x in dimensions.split("x")])
+    totalLengthOfRibbon = totalLengthOfRibbon + 2 * sum(dimensions[:2]) + dimensions[0]*dimensions[1]*dimensions[2]
+print(totalLengthOfRibbon)
