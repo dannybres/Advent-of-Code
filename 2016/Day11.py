@@ -1,14 +1,11 @@
 from itertools import combinations
 from heapq import heappush, heappop
-from random import random
-
 
 def displayDevices(devices,e):
     displayDev = devices.copy()
     displayDev.reverse()
     for n,d in enumerate(displayDev):
         print("F%i: %s" % (3 - n,("E " if 3 - n == e else "  ") + " ".join(d)))
-    print()
 
 def buildDevices(t = ""):
     lines = open("Day11"+ t + ".txt").read().splitlines()
@@ -28,7 +25,6 @@ def isFloorValid(f):
     return all([generators.count(c) != 0 for c in microchips]) or len(generators) == 0
 
 def getKey(devices):
-    # displayDevices(devices,0)
     allDevices = set()
     for floor in devices:
         for x in floor:
@@ -55,7 +51,7 @@ def findMinimumLiftMovesToAllObjectsToTopFloor(devices):
             continue
 
         seen.append((getKey(devices),e))
-
+        toMove = []
         for dev in list(combinations(devices[e],2)) + list(combinations(devices[e],1)):
             for dir in [-1, 1]:
                 nextFloor = e + dir 
@@ -77,7 +73,23 @@ def findMinimumLiftMovesToAllObjectsToTopFloor(devices):
                             break
                     if nextFloor < firstFloorWithDevices:
                         continue
-                    heappush(pq,(costSoFar+1,nextDeviceConfiguration,nextFloor))
+                    toMove.append((dev,dir,(costSoFar+1,nextDeviceConfiguration,nextFloor)))
+                    # heappush(pq,(costSoFar+1,nextDeviceConfiguration,nextFloor))
+
+        movesUp = [x for x in toMove if x[1] == 1]
+        
+        if movesUp:
+            alreadyMoved = set()
+            for m in movesUp:
+                if len(m[0]) > 1:
+                    for n in list(m[0]):
+                        alreadyMoved.add(n)
+                else:
+                     if  list(m[0])[0] in alreadyMoved:
+                         toMove.remove(m)
+                    
+        for move in toMove:
+            heappush(pq,move[2])
 
 seen = []
 devices = buildDevices()
