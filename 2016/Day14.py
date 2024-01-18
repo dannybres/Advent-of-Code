@@ -17,7 +17,7 @@ def findHash(s,part2 = False):
 
 salt = 'ahsbgdzn'
 for b  in [False, True]:
-    candidate = []
+    candidate = []       
     confirmed = []
     n = 0
     finalN = float('inf')
