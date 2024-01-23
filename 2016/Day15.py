@@ -1,4 +1,4 @@
-from modint import ChineseRemainderConstructor, chinese_remainder
+from modint import chinese_remainder
 
 lines = open("Day15.txt").read().splitlines()
 teeth = []
