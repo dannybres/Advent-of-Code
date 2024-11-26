@@ -1,5 +1,5 @@
 def runAssembunny(r):
-    lines = open("Day12a.txt").read().splitlines()
+    lines = open("Day23a.txt").read().splitlines()
     i = 0
     while i < len(lines):
         type, *arg = lines[i].split(" ")
@@ -13,6 +13,17 @@ def runAssembunny(r):
             r[arg[0]] += 1
         elif type == "dec":
             r[arg[0]] -= 1
+        elif type == "tgl":
+            toggleIndex = i + r[arg[0]]
+            instructionToToggle = lines[toggleIndex]
+            print(instructionToToggle)
+            if instructionToToggle.count(" ") == 1:
+                print(1)
+            else:
+                print(2)
+            # print((type,arg))
+            # print(r)
+            exit()
         else:
             if arg[0].isnumeric():
                 x = int(arg[0])
