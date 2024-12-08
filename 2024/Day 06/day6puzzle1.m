@@ -24,26 +24,26 @@ dirs = [-1 0
     0 1
     1 0
     0 -1];
-di = 1;
+dirIdx = 1;
 visited = false([size(map),4]);
-visited(guard(1),guard(2),di) = true;
+visited(guard(1),guard(2),dirIdx) = true;
 while true
-    cl = guard + dirs(di,:);
-    if any(cl<1) || any(cl > height(map))
+    candidateGuard = guard + dirs(dirIdx,:);
+    if any(candidateGuard<1) || any(candidateGuard > height(map))
         break
     end
-    if map(cl(1),cl(2)) ~= '#'
-        guard = cl;
+    if map(candidateGuard(1),candidateGuard(2)) ~= '#'
+        guard = candidateGuard;
     else
-        di = di + 1;
-        if di == 5
-            di = 1;
+        dirIdx = dirIdx + 1;
+        if dirIdx == 5
+            dirIdx = 1;
         end
     end
-    if visited(guard(1),guard(2),di)
+    if visited(guard(1),guard(2),dirIdx)
         loop = true;
         break
     end
-    visited(guard(1),guard(2),di) = true;
+    visited(guard(1),guard(2),dirIdx) = true;
 end
 end
