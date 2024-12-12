@@ -2,7 +2,6 @@
 data = readlines("input.txt");
 day7puzzle2result = 0;
 for idx = 1:numel(data)
-    idx
     d = data(idx);
     target = d.extractBefore(":").double();
     elements = d.extractAfter(": ").split(" ").double();
