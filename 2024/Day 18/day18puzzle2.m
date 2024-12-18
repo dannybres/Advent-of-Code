@@ -1,7 +1,8 @@
 %% day18puzzle2 - Daniel Breslan - Advent Of Code 2024
-profile on
 data = readlines("input.txt").split(",").double();
 dim = 71;
+
+%% convolution approach
 n = height(data);
 map = true(dim,dim,n);
 for idx = 1:height(data)
@@ -23,4 +24,44 @@ for idx = size(reachable,3):-1:1
     end
 end
 day18puzzle2result = string(data(idx+1,:)).join(",")
-profile viewer
+
+
+%% Binary search
+lo = 1;
+hi = height(data);
+
+while hi > lo
+    mid = floor((hi+lo)/2);
+    if isConnected(mid,data)
+        lo = mid + 1;
+    else
+        hi = mid;
+    end
+end
+day18puzzle2result = string(data(lo,:)).join(",")
+
+function connected = isConnected(to,bytes)
+connected = false;
+dim = 70;
+q = nan(1e4,2);
+q(1,:) = [0 0];
+qidx = 1;
+qiidx = 1;
+while 1
+if exist('distance','var'),break,end
+item = q(qidx,:);
+if isnan(item(1)), break,end
+cl = item(1:2);
+for d = [-1 0; 1 0; 0 -1; 0 1]'
+    dir = d';
+    nl = cl + dir;
+    if any(nl < 0) || any(nl > dim), continue, end
+    if any(all(nl == bytes(1:to,:),2)), continue, end
+    if any(all(nl == q(1:qiidx,:),2)), continue, end
+    if all(nl == [dim dim]),connected = true; return; end
+    qiidx = qiidx + 1;
+    q(qiidx,:) = nl;
+end
+qidx = qidx + 1;
+end
+end
