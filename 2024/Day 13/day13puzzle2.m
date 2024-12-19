@@ -9,4 +9,4 @@ for idx = 1:4:numel(data)
         day13puzzle2result = day13puzzle2result + sum(presses .* [3;1]);
     end
 end
-day13puzzle2result 
+day13puzzle2result
