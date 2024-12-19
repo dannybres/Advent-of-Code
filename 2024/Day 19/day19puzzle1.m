@@ -1,11 +1,13 @@
 %% day19puzzle1 - Daniel Breslan - Advent Of Code 2024
 data = readlines("input.txt");
-t = data(1).split(", ");
-d = data(3:end);
+
+towels = data(1).split(", ");
+designs = data(3:end);
+
 day19puzzle1result = 0;
-day19puzzle1result = 0;
-for idx = 1:numel(d)
-    day19puzzle1result = day19puzzle1result + isPossible(d(idx),t);
+for idx = 1:numel(designs)
+    day19puzzle1result = day19puzzle1result + ...
+        isPossible(designs(idx),towels);
 end
 day19puzzle1result
 
