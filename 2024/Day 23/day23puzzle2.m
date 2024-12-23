@@ -10,25 +10,19 @@ end
 
 
 for nidx = 1:height(data)
-    newNeighbour = check(data(nidx,:),data,neighbors);
+    newNeighbour = check(data(nidx,:),neighbors);
     if numel(newNeighbour) + 2 > numel(party)
         party = [data(nidx,:) newNeighbour];
     end
 end
 day23puzzle2result = sort(party).join(",")
 
+function newNodes = check(nodes,neighbors)
+newNodes = [neighbors(nodes(1)).split(",")];
+newNodes = newNodes(ismember(newNodes,neighbors(nodes(1)).split(",")));
+newNodes(ismember(newNodes,nodes)) = [];
+newNodes = reshape(unique(newNodes),1,[]);
 
-function newNodes = check(nodes,data,neighbors)
-for idx = 1:numel(nodes)
-    nn = neighbors(nodes(idx)).split(",");
-    nn(ismember(nn,nodes)) = [];
-    if exist("newNodes","var")
-        newNodes = nn(ismember(nn,newNodes));
-    else
-        newNodes = nn;
-    end
-end
-newNodes = reshape(newNodes,1,[]);
 if isempty(newNodes), return, end
 conn = false(numel(newNodes),numel(newNodes));
 for ridx = 1:numel(newNodes)
