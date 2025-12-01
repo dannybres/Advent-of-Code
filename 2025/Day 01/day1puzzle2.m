@@ -4,25 +4,25 @@ data = readlines("input.txt");
 dir = data.extract(1);
 num = str2double(data.extractAfter(1));
 
-d = 50;
-c = 0;
+dialLocation = 50;
+counterOfZeroPasses = 0;
 
 for idx = 1:numel(dir)
-    st = d;
+    st = dialLocation;
     if dir(idx) == "L"
-        d = d - num(idx);
+        dialLocation = dialLocation - num(idx);
     else
-        d = d + num(idx);
+        dialLocation = dialLocation + num(idx);
     end
-    en = d;
-    c = c + floor(abs(en)/100);
+    en = dialLocation;
+    counterOfZeroPasses = counterOfZeroPasses + floor(abs(en)/100);
     if en < 1
-        c = c + 1;
+        counterOfZeroPasses = counterOfZeroPasses + 1;
     end
     if st == 0 && en < 0
-        c = c - 1;
+        counterOfZeroPasses = counterOfZeroPasses - 1;
     end
-    d = mod(d,100);
+    dialLocation = mod(dialLocation,100);
 end
 
-day1puzzle1result = c
+day1puzzle2result = counterOfZeroPasses
