@@ -16,3 +16,12 @@ for dIdx = 1:height(data)
 end
 format longg
 day2puzzle1result
+
+%% Alternative solution - TIL Numerical References in RegEx
+day2puzzle1result = 0;
+for dIdx = 1:height(data)
+    ids = string(data(dIdx,1):data(dIdx,2));
+    day2puzzle1result = day2puzzle1result + sum(ids(~cellfun(@isempty,regexp(ids,"^(.+)\1$"))).double);
+end
+format longg
+day2puzzle1result
