@@ -1,14 +1,14 @@
 %% day3puzzle1 - Daniel Breslan - Advent Of Code 2025
 data = readlines("input.txt").char() - '0';
-n = 2;
-r = nan(height(data),n);
+numberOfDigits = 2;
+digits = nan(height(data),numberOfDigits);
 for idx = 1:height(data)
-    s = 1;
-    for rIdx = 1:n
-        r(idx,rIdx) = max(data(idx,s:end-n+rIdx));
-        s = find(data(idx,s:end) == r(idx,rIdx),1) + s;
+    startIdx = 1;
+    for rIdx = 1:numberOfDigits
+        digits(idx,rIdx) = max(data(idx,startIdx:end-numberOfDigits+rIdx));
+        startIdx = find(data(idx,startIdx:end) == ...
+            digits(idx,rIdx),1) + startIdx;
     end
 end
-sum(r .* 10.^(n-1:-1:0),'all')
-
-
+format longg
+sum(digits .* 10.^(numberOfDigits-1:-1:0),'all')
