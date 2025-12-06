@@ -10,13 +10,13 @@ for idx = 1:numel(number)
         day6puzzle1result = day6puzzle1result + soFar;
         continue
     end
-    if operators(idx) == "+"
-        f = @sum;
-        soFar = 0;
-    elseif operators(idx) == "*"
-        f = @prod;
-        soFar = 1;
+    switch operators(idx)
+        case "+"
+            f = @sum; soFar = 0;
+        case "*"
+            f = @prod; soFar = 1;
     end
     soFar = f([soFar,number(idx)]);
 end
+format longg
 day6puzzle1result
