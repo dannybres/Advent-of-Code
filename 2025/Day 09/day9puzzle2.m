@@ -1,22 +1,32 @@
 %% day9puzzle2 - Daniel Breslan - Advent Of Code 2025
+tic
+close all
 data = readlines("input.txt").split(",").double;
+data = fliplr(data);
 originalData = data;
 
 % add extra red tiles in big steps to capture cut ins (only considered big
 % x cuts ins)
-while true
-    b = find(abs(diff(data(:,1))) > 2000);
-    if isempty(b)
-        break
+for idx = 1:2
+    while true
+        b = find(abs(diff(data(:,idx))) > 2000);
+    idx
+        if isempty(b)
+            break
+        end
+        splitAfter = b(1);
+        sp = 1500;
+        if data(splitAfter,idx) > data(splitAfter+1,idx)
+            sp = -sp;
+        end
+        n = data(splitAfter,idx):sp:data(splitAfter+1,idx);
+        if idx == 1
+            n = [n',repmat(data(splitAfter,2),numel(n),1)];
+        else
+            n = [repmat(data(splitAfter,1),numel(n),1),n'];
+        end
+        data = [data(1:splitAfter-1,:);n;data(splitAfter+1:end,:)];
     end
-    splitAfter = b(1);
-    sp = 1500;
-    if data(splitAfter) > data(splitAfter+1)
-        sp = -sp;
-    end
-    n = data(splitAfter):sp:data(splitAfter+1);
-    n = [n',repmat(data(splitAfter,2),numel(n),1)];
-    data = [data(1:splitAfter-1,:);n;data(splitAfter+1:end,:)];
 end
 
 % get all corner indexes and rank descensing by area
@@ -42,8 +52,8 @@ for idx = 1:height(rowIdx)
     end
 end
 day9puzzle2result = (abs(a(1)-b(1)) + 1) * (abs(a(2)-b(2)) + 1)
-
-plot([originalData(:,1);originalData(1,1)],[originalData(:,2);originalData(1,2)],'o-',MarkerFaceColor='g',Color='g')
+toc
+plot([originalData(:,1);originalData(1,1)],[originalData(:,2);originalData(1,2)],'o-',MarkerFaceColor='g',Color='g',MarkerSize=2)
 hold on
 patch([a(1) a(1) b(1) b(1)],[a(2) b(2) b(2) a(2)],'r')
 plot(a(1),a(2),'o',MarkerSize=10,MarkerFaceColor='y')
