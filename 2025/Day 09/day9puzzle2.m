@@ -1,8 +1,5 @@
 %% day9puzzle2 - Daniel Breslan - Advent Of Code 2025
-tic
-close all
 data = readlines("input.txt").split(",").double;
-data = fliplr(data);
 originalData = data;
 
 % add extra red tiles in big steps to capture cut ins (only considered big
@@ -10,7 +7,6 @@ originalData = data;
 for idx = 1:2
     while true
         b = find(abs(diff(data(:,idx))) > 2000);
-    idx
         if isempty(b)
             break
         end
@@ -47,12 +43,12 @@ for idx = 1:height(rowIdx)
         continue
     end
 
-    if ismember(a,originalData,"rows") & ismember(b,originalData,"rows")
+    if ismember(a,originalData,"rows") && ismember(b,originalData,"rows")
         break
     end
 end
 day9puzzle2result = (abs(a(1)-b(1)) + 1) * (abs(a(2)-b(2)) + 1)
-toc
+
 plot([originalData(:,1);originalData(1,1)],[originalData(:,2);originalData(1,2)],'o-',MarkerFaceColor='g',Color='g',MarkerSize=2)
 hold on
 patch([a(1) a(1) b(1) b(1)],[a(2) b(2) b(2) a(2)],'r')
