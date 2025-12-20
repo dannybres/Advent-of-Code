@@ -18,6 +18,10 @@ for idx = 1:numel(types)
     end
 end
 
+%%
+clc
+heuristic(apods)
+%%
 % state;
 % apods=[8    14     7     6     0    12    10     4];
 % visualiseApods(apods)
@@ -38,7 +42,7 @@ end
 heapq = py.importlib.import_module('heapq');
 pq = py.list();
 
-heapq.heappush(pq, py.tuple({0, py.list(state)}));
+heapq.heappush(pq, py.tuple({heuristic(state), py.list(state)}));
 
 si = repmat({15},1,8);
 visited = false(si{:});
@@ -116,9 +120,10 @@ for aIdx = 1:numel(apods)
         if ~any(ismember(apods,destinationRoom)) && apods(partner) == (destinationRoom + 1) % entrance to room is clear and deeper in room is partner
             if ~cannotGet(apods,apod,destinationRoom)
                 %disp(compose("%i (%c - %i) Move to destination %i",apod,type,aIdx,destinationRoom))
-                newCost = currentCost + numberOfSteps(apod,destinationRoom) * cost;
                 newState = apods;
                 newState(aIdx) = destinationRoom;
+                %disp(visualiseApods(newState))
+                newCost = currentCost + numberOfSteps(apod,destinationRoom) * cost + heuristic(newState) - heuristic(apods);
                 %disp(visualiseApods(newState))
                 neighbours = [neighbours; newCost, newState];
             else
@@ -128,9 +133,9 @@ for aIdx = 1:numel(apods)
         elseif ~any(ismember(apods,destinationRoom)) && ~any(ismember(apods,destinationRoom+1))
             if ~cannotGet(apods,apod,destinationRoom)
                 %disp(compose("%i (%c - %i) Move to destination %i",apod,type,aIdx,destinationRoom))
-                newCost = currentCost + numberOfSteps(apod,destinationRoom + 1) * cost;
                 newState = apods;
                 newState(aIdx) = destinationRoom + 1;
+                newCost = currentCost + numberOfSteps(apod,destinationRoom + 1) * cost  + heuristic(newState) - heuristic(apods);
                 %disp(visualiseApods(newState))
                 neighbours = [neighbours; newCost, newState];
             else
@@ -153,9 +158,10 @@ for aIdx = 1:numel(apods)
                 continue
             end
             %disp(compose("%i (%c - %i) Move to hall %i",apod,type,aIdx,hIdx))
-            newCost = currentCost + numberOfSteps(apod,hIdx) * cost;
             newState = apods;
             newState(aIdx) = hIdx;
+            newCost = currentCost + numberOfSteps(apod,hIdx) * cost  + heuristic(newState) - heuristic(apods);
+                %disp(visualiseApods(newState))
             %disp(visualiseApods(newState))
             neighbours = [neighbours; newCost, newState];
         end
@@ -205,7 +211,8 @@ function steps = numberOfSteps(from,to)
     depMap = [0 0 0 0 0 0  0 1 2 1 2 1 2 1 2];
     fc = colMap(from + 1); tc = colMap(to + 1);
     fd = depMap(from + 1); td = depMap(to + 1);
-    steps = abs(fd + td) + abs(fc - tc);
+    depth = (fd + td) .* double(fc ~= tc);
+    steps = depth + abs(fc - tc);
     % cache(from + 1, to + 1) = steps;
 % end
 end
@@ -219,4 +226,36 @@ podsInHall = colMap(apods(apods < 7) + 1);
 podsInHall(podsInHall == fc) = [];
 
 bool = any(podsInHall >= min(locs) & podsInHall <= max(locs));
+end
+
+function value = heuristic(apods)
+value = 0;
+for idx = 1:numel(apods)
+    [~, ~, destinationRoom, ~,cost] = getInfo(idx);
+    value = min([numberOfSteps(apods(idx),destinationRoom + 1), numberOfSteps(apods(idx),destinationRoom)]) * cost;
+end
+end
+
+function out = setState(state)
+   out = [encode4(state(1:4)) encode4(state(5:8))];
+end
+
+function out = getState(state)
+   out = [decode4(state(1)) decode4(state(2))];
+end
+
+function u = encode4(a)
+    % a : 1x4 vector, each element in [0,14]
+    u = uint64(a(1)) ...
+      + bitshift(uint64(a(2)), 4) ...
+      + bitshift(uint64(a(3)), 8) ...
+      + bitshift(uint64(a(4)), 12);
+end
+
+function a = decode4(u)
+    a = zeros(1,4,'uint8');
+    a(1) = bitand(u, uint64(15));
+    a(2) = bitand(bitshift(u, -4),  uint64(15));
+    a(3) = bitand(bitshift(u, -8),  uint64(15));
+    a(4) = bitand(bitshift(u, -12), uint64(15));
 end
