@@ -99,7 +99,9 @@ profile viewer
 function value  = heuristic(apods)
 value = 0;
 for idx = 1:numel(apods)
-    [~, ~, destinationRoom, ~,cost] = getInfo(idx);
+    % [~, ~, destinationRoom, ~,cost] = getInfo(idx);
+    destinationRoom = 3 + ceil(idx/4) * 4;
+    cost = 10^(ceil(idx/4)-1);
     value = value + min([numberOfSteps(apods(idx),destinationRoom + 1), numberOfSteps(apods(idx),destinationRoom)]) * cost;
 end
 end
@@ -110,7 +112,11 @@ neighbours = [];
 for aIdx = 1:numel(apods)
 
     apod = apods(aIdx);
-    [~, ~, destinationRoom,partners,cost] = getInfo(aIdx);
+    % [~, ~, destinationRoom,partners,cost] = getInfo(aIdx);
+    destinationRoom = 3 + ceil(aIdx/4) * 4;
+    cost = 10^(ceil(aIdx/4)-1);
+    partners = (ceil(aIdx/4) - 1) * 4 + 1 : (ceil(aIdx/4) - 1) * 4 + 4;
+    partners(partners == aIdx) = [];
     % is it satisfied?
     if apod == destinationRoom + 3 ||...
             (apod == destinationRoom + 2 && any(apods(partners) == destinationRoom + 3)) || ...
@@ -184,7 +190,7 @@ numMap = [0 1 nan 2 nan 3 nan 4 nan 5 6
     nan nan 9 nan 13 nan 17 nan 21 nan nan
     nan nan 10 nan 14 nan 18 nan 22 nan nan];
 for idx = 1:numel(apods)
-    map(apods(idx) == numMap) = getInfo(idx);
+    map(apods(idx) == numMap) = ceil(ni/4);
 end
 end
 
@@ -197,15 +203,15 @@ bool = ~all(apods' ~= needToBeFree,"all");
 
 end
 
-function [type, idx, destinationRoom, partners,cost] = getInfo(number)
-idx = ceil(number/4);
-type = 'A' + idx - 1;
-destinationRoom = 3 + idx * 4;
-allApods = reshape(1:16,4,4);
-allApods = allApods(:,any(allApods == number));
-partners = allApods(allApods ~= number);
-cost = 10^(idx-1);
-end
+% function [type, idx, destinationRoom, partners,cost] = getInfo(number)
+% idx = ceil(number/4);
+% type = 'A' + idx - 1;
+% destinationRoom = 3 + idx * 4;
+% allApods = reshape(1:16,4,4);
+% allApods = allApods(:,any(allApods == number));
+% partners = allApods(allApods ~= number);
+% cost = 10^(idx-1);
+% end
 
 function steps = numberOfSteps(from,to)
 colMap = [0 1 3 5 7 9 10 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8];
@@ -216,15 +222,29 @@ depth = (fd + td) .* double(fc ~= tc);
 steps = depth + abs(fc - tc);
 end
 
-function bool = cannotGet(apods,from,to)
+function bool = cannotGet(apods, from, to)
 
 colMap = [0 1 3 5 7 9 10 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8];
-fc = colMap(from + 1); tc = colMap(to + 1);
-podsInHall = colMap(apods(apods < 7) + 1);
-podsInHall(podsInHall == fc) = [];
 
-bool = any(podsInHall >= min([fc tc]) & podsInHall <= max([fc tc]));
+fc = colMap(from + 1);
+tc = colMap(to + 1);
+
+cols = colMap(apods + 1);
+
+bool = any( ...
+    apods < 7 & ...                 % hallway only
+    cols ~= fc & ...                % not same column as start
+    cols >= min(fc, tc) & ...
+    cols <= max(fc, tc) ...
+);
+
 end
+
+% function h = stateHash(s)
+% s = uint64(s);
+% shifts = uint64(0:15) * 4;   % 4 bits = values 0..15 (truncate!)
+% h = sum(bitshift(s, shifts));
+% end
 
 
 function h = stateHash(s)
@@ -234,11 +254,13 @@ s = uint64(s);
 h = uint64(0);
 
 for i = 1:16
-    h = bitxor(h, rotl(h, 5));
+    
+    % h = bitxor(h, rotl(h, 5));
+    h = bitxor(h, bitor(bitshift(h,5), bitshift(h, 5-64)));
     h = bitxor(h, s(i));
 end
 end
 
-function y = rotl(x,n)
-y = bitor(bitshift(x,n), bitshift(x, n-64));
-end
+% function y = rotl(x,n)
+% y = bitor(bitshift(x,n), bitshift(x, n-64));
+% end
