@@ -2,6 +2,18 @@ clc
 profile on
 clear all
 
+steps = nan(23);
+for from = 0:22
+    for to = 0:22
+        colMap = [0 1 3 5 7 9 10 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8];
+        depMap = [0 0 0 0 0 0  0 1 2 3 4 1 2 3 4 1 2 3 4 1 2 3 4];
+        fc = colMap(from + 1); tc = colMap(to + 1);
+        fd = depMap(from + 1); td = depMap(to + 1);
+        depth = (fd + td) .* double(fc ~= tc);
+        steps(from+1,to+1) = depth + abs(fc - tc);
+    end
+end
+numberOfSteps = @(f,t) steps(f+1,t+1);
 for name = ""%["Demo" ""]
     tic
     data = readlines("input" + name + ".txt");
@@ -26,7 +38,7 @@ for name = ""%["Demo" ""]
         end
     end
 
-    cost = heuristic(state);
+    cost = heuristic(state,numberOfSteps);
     q = cell(1,20e6);
 
     visited = containers.Map('KeyType','uint64','ValueType','logical');
@@ -52,13 +64,6 @@ for name = ""%["Demo" ""]
         for next = 1:height(allApods)
             apods = allApods(next,:);
 
-            if rand() < 0.0001 % logging
-                disp(compose("Item %i for cost %i",idx,queueCost))
-                % if rand() < 0.5
-                %     visualiseApods(apods)
-                % end
-            end
-
             if all([sort(apods(1:4)), sort(apods(5:8)), ...
                     sort(apods(9:12)), sort(apods(13:16))] == 7:22) % finished
                 done = true;
@@ -71,11 +76,11 @@ for name = ""%["Demo" ""]
             end
             visited(h) = true;
 
-            [newCosts,neighbours] = findNeighbours(apods); % options
-            currentCost = queueCost - heuristic(apods);
+            [newCosts,neighbours] = findNeighbours(apods,numberOfSteps); % options
+            currentCost = queueCost - heuristic(apods,numberOfSteps);
 
             for nIdx = 1:height(neighbours)
-                newQueuePosition = newCosts(nIdx) + currentCost + heuristic(neighbours(nIdx,:));
+                newQueuePosition = newCosts(nIdx) + currentCost + heuristic(neighbours(nIdx,:),numberOfSteps);
                 q{newQueuePosition} = [q{newQueuePosition};neighbours(nIdx,:)];
 
 
@@ -96,17 +101,16 @@ end
 
 profile viewer
 
-function value  = heuristic(apods)
+function value  = heuristic(apods,numberOfSteps)
 value = 0;
 for idx = 1:numel(apods)
-    % [~, ~, destinationRoom, ~,cost] = getInfo(idx);
     destinationRoom = 3 + ceil(idx/4) * 4;
     cost = 10^(ceil(idx/4)-1);
     value = value + min([numberOfSteps(apods(idx),destinationRoom + 1), numberOfSteps(apods(idx),destinationRoom)]) * cost;
 end
 end
 
-function [costs,neighbours] = findNeighbours(apods)
+function [costs,neighbours] = findNeighbours(apods,numberOfSteps)
 costs = [];
 neighbours = [];
 for aIdx = 1:numel(apods)
@@ -203,25 +207,6 @@ bool = ~all(apods' ~= needToBeFree,"all");
 
 end
 
-% function [type, idx, destinationRoom, partners,cost] = getInfo(number)
-% idx = ceil(number/4);
-% type = 'A' + idx - 1;
-% destinationRoom = 3 + idx * 4;
-% allApods = reshape(1:16,4,4);
-% allApods = allApods(:,any(allApods == number));
-% partners = allApods(allApods ~= number);
-% cost = 10^(idx-1);
-% end
-
-function steps = numberOfSteps(from,to)
-colMap = [0 1 3 5 7 9 10 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8];
-depMap = [0 0 0 0 0 0  0 1 2 3 4 1 2 3 4 1 2 3 4 1 2 3 4];
-fc = colMap(from + 1); tc = colMap(to + 1);
-fd = depMap(from + 1); td = depMap(to + 1);
-depth = (fd + td) .* double(fc ~= tc);
-steps = depth + abs(fc - tc);
-end
-
 function bool = cannotGet(apods, from, to)
 
 colMap = [0 1 3 5 7 9 10 2 2 2 2 4 4 4 4 6 6 6 6 8 8 8 8];
@@ -236,16 +221,9 @@ bool = any( ...
     cols ~= fc & ...                % not same column as start
     cols >= min(fc, tc) & ...
     cols <= max(fc, tc) ...
-);
+    );
 
 end
-
-% function h = stateHash(s)
-% s = uint64(s);
-% shifts = uint64(0:15) * 4;   % 4 bits = values 0..15 (truncate!)
-% h = sum(bitshift(s, shifts));
-% end
-
 
 function h = stateHash(s)
 % s : 1x16 values in 0..22
@@ -254,13 +232,9 @@ s = uint64(s);
 h = uint64(0);
 
 for i = 1:16
-    
+
     % h = bitxor(h, rotl(h, 5));
     h = bitxor(h, bitor(bitshift(h,5), bitshift(h, 5-64)));
     h = bitxor(h, s(i));
 end
 end
-
-% function y = rotl(x,n)
-% y = bitor(bitshift(x,n), bitshift(x, n-64));
-% end
