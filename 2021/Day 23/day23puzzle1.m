@@ -21,8 +21,8 @@ for name = ["Demo" ""]
             state((idx - 1) * 2 + ci) = map(r(ci),c(ci));
         end
     end
-    % cost = heuristic(state);
-    cost = 0;
+    cost = heuristic(state);
+    % cost = 0;
 
     q = cell(1,20e5);
 
@@ -34,6 +34,7 @@ for name = ["Demo" ""]
         if idx == 0
             queueCost = cost;
             allApods = state;
+            idx = idx + 1;
         else
             if isempty(q{idx})
                 idx = idx + 1;
@@ -41,67 +42,66 @@ for name = ["Demo" ""]
             else
                 queueCost = idx;
                 allApods = q{idx};
+                q{idx} = [];
             end
         end
-        idx = idx + 1;
         for next = 1:height(allApods)
             apods = allApods(next,:);
-            if rand() < 0.00002
+
+            if rand() < 0.0001 % logging
                 disp(compose("Item %i for cost %i",idx,queueCost))
             end
 
-            if all([sort(apods(1:2)), sort(apods(3:4)), sort(apods(5:6)), sort(apods(7:8))] == 7:14)
+            if all([sort(apods(1:2)), sort(apods(3:4)), ...
+                    sort(apods(5:6)), sort(apods(7:8))] == 7:14) % finished
                 done = true;
                 break
             end
-            vi = num2cell(apods+1);
+
+            vi = num2cell(apods+1); % visited
             if visited(vi{:})
                 continue
             end
             visited(vi{:}) = true;
-            [newCosts,neighbours] = findNeighbours(apods);
-            % ch = heuristic(apods);
-            currentCost = queueCost;
+
+            [newCosts,neighbours] = findNeighbours(apods); % options
+            currentCost = queueCost - heuristic(apods);
+
             for nIdx = 1:height(neighbours)
-                nh = 0;%heuristic(neighbours(nIdx,:));
-                q{newCosts(nIdx) + currentCost + nh} = [q{newCosts(nIdx) + currentCost + nh};neighbours(nIdx,:)];
+                newQueuePosition = newCosts(nIdx) + currentCost + heuristic(neighbours(nIdx,:));
+                q{newQueuePosition} = [q{newQueuePosition};neighbours(nIdx,:)];
             end
         end
         if done
             break
         end
     end
-    disp(compose("Puzzle Solved - Item %i for cost %i",idx,queueCost))
+    if queueCost == 12521 || queueCost == 14467
+        disp(compose("Puzzle Solved - Item %i for cost %i",idx,queueCost))
+    else
+        error("incorrect solution")
+        queueCost
+    end
+
     disp("")
     toc
 end
 
 % profile viewer
 
-% function value  = heuristic(apods)
-% persistent cache
-% if isempty(cache)
-%     cache = nan(1,15^8);
-%     disp(compose("cache built - %i items",numel(cache)))
-% end
-% key = encode8x15_fast(apods);
-% value = cache(key);
-% if isnan(value)
-%     value = 0;
-%     for idx = 1:numel(apods)
-%         [~, ~, destinationRoom, ~,cost] = getInfo(idx);
-%         value = value + min([numberOfSteps(apods(idx),destinationRoom + 1), numberOfSteps(apods(idx),destinationRoom)]) * cost;
-%     end
-%     cache(key) = value;
-% end
-% 
-% end
+function value  = heuristic(apods)
+value = 0;
+for idx = 1:numel(apods)
+    [~, ~, destinationRoom, ~,cost] = getInfo(idx);
+    value = value + min([numberOfSteps(apods(idx),destinationRoom + 1), numberOfSteps(apods(idx),destinationRoom)]) * cost;
+end
+end
 
 function [costs,neighbours] = findNeighbours(apods)
 % clc
 costs = [];
 neighbours = [];
-% ch = heuristic(apods);
+ch = heuristic(apods);
 for aIdx = 1:numel(apods)
 
     apod = apods(aIdx);
@@ -121,7 +121,7 @@ for aIdx = 1:numel(apods)
                 newState = apods;
                 newState(aIdx) = destinationRoom;
                 %disp(visualiseApods(newState))
-                newCost = numberOfSteps(apod,destinationRoom) * cost;% + heuristic(newState) - ch;
+                newCost = numberOfSteps(apod,destinationRoom) * cost;
                 %disp(visualiseApods(newState))
                 costs = [costs;
                     newCost];
@@ -135,7 +135,7 @@ for aIdx = 1:numel(apods)
                 %disp(compose("%i (%c - %i) Move to destination %i",apod,type,aIdx,destinationRoom))
                 newState = apods;
                 newState(aIdx) = destinationRoom + 1;
-                newCost = numberOfSteps(apod,destinationRoom + 1) * cost;% + heuristic(newState) - ch;
+                newCost = numberOfSteps(apod,destinationRoom + 1) * cost;
                 %disp(visualiseApods(newState))
                 costs = [costs;
                     newCost];
@@ -162,7 +162,7 @@ for aIdx = 1:numel(apods)
             %disp(compose("%i (%c - %i) Move to hall %i",apod,type,aIdx,hIdx))
             newState = apods;
             newState(aIdx) = hIdx;
-            newCost = numberOfSteps(apod,hIdx) * cost;% + heuristic(newState) - ch;
+            newCost = numberOfSteps(apod,hIdx) * cost;
             %disp(visualiseApods(newState))
             %disp(visualiseApods(newState))
             costs = [costs;
@@ -171,7 +171,6 @@ for aIdx = 1:numel(apods)
                 newState];
         end
     end
-    % return
 end
 end
 
@@ -207,20 +206,12 @@ cost = 10^(idx-1);
 end
 
 function steps = numberOfSteps(from,to)
-persistent cache
-if isempty(cache)
-    cache = nan(15);
-end
-steps = cache(from + 1, to + 1);
-if isnan(steps)
-    colMap = [0 1 3 5 7 9 10 2 2 4 4 6 6 8 8];
-    depMap = [0 0 0 0 0 0  0 1 2 1 2 1 2 1 2];
-    fc = colMap(from + 1); tc = colMap(to + 1);
-    fd = depMap(from + 1); td = depMap(to + 1);
-    depth = (fd + td) .* double(fc ~= tc);
-    steps = depth + abs(fc - tc);
-    cache(from + 1, to + 1) = steps;
-end
+colMap = [0 1 3 5 7 9 10 2 2 4 4 6 6 8 8];
+depMap = [0 0 0 0 0 0  0 1 2 1 2 1 2 1 2];
+fc = colMap(from + 1); tc = colMap(to + 1);
+fd = depMap(from + 1); td = depMap(to + 1);
+depth = (fd + td) .* double(fc ~= tc);
+steps = depth + abs(fc - tc);
 end
 
 function bool = cannotGet(apods,from,to)
@@ -231,11 +222,6 @@ podsInHall = colMap(apods(apods < 7) + 1);
 podsInHall(podsInHall == fc) = [];
 
 bool = any(podsInHall >= min([fc tc]) & podsInHall <= max([fc tc]));
-end
-
-function key = encode8x15_fast(v)
-weights = uint64([1 15 225 3375 50625 759375 11390625 170859375]);
-key = sum(uint64(v(:).') .* weights);
 end
 
 
